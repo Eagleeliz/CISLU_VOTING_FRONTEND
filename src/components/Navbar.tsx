@@ -19,6 +19,11 @@ const Navbar = () => {
           {/* Desktop Links */}
           <ul className="hidden md:flex gap-8 font-medium">
             <li>
+              <Link className="text-white hover:text-red-500" to="/">
+                Home
+              </Link>
+            </li>
+            <li>
               <Link className="text-white hover:text-red-500" to="/login">
                 Login
               </Link>
