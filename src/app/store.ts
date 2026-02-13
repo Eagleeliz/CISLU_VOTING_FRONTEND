@@ -4,6 +4,7 @@ import { persistReducer, persistStore } from "redux-persist";
 import { authApi } from "../Features/Apis/Auth.APi";
 // Create Persist Configuration for auth Slice
 import authReducer from "../Features/Auth/AuthSlice";
+import { electionApi } from "../Features/Apis/Election.Api";
  const authPersistConfiguration ={
     key: 'auth',
     storage,
@@ -17,12 +18,13 @@ export const store = configureStore({
     reducer: {
         [authApi.reducerPath]:authApi.reducer,
         auth: persistedAuthReducer,
+        [electionApi.reducerPath] :electionApi.reducer,
       
     },
     middleware: (getDefaultMiddleware)=>
         getDefaultMiddleware({
             serializableCheck: false
-        }).concat(authApi.middleware)
+        }).concat(authApi.middleware,electionApi.middleware)
 })
 
 export const persister = persistStore(store);

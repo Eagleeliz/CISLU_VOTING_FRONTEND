@@ -100,7 +100,7 @@ const Navbar = () => {
                     </div>
                     
                     {userRole === "admin" ? (
-                      <Link to="/AdminDashboard" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors">
+                      <Link to="/AdminDashBoard" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-xl transition-colors">
                         <UserCheck size={18} /> Admin Panel
                       </Link>
                     ) : (

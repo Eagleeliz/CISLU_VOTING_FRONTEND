@@ -1,5 +1,4 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { Toaster } from 'react-hot-toast';
 
 // Styling
 import './App.css';
@@ -8,17 +7,18 @@ import './App.css';
 import LandingPage from "./pages/LandingPage";
 import LogIn from "./pages/LogIn";
 import ApplicationsPage from "./pages/Application";
-import Error from './pages/Error'; 
+import Error from './pages/Error';
 import ProtectedRoutes from './components/ProtectedRoutes';
 import { AdminDashBoard } from './pages/AdminDashBoard';
+import { AllElections } from './DashBoards/AdminDashBoard/AllElections';
 
 
 function App() {
   const Router = createBrowserRouter([
     {
       path: '/',
-      element: <LandingPage />, 
-      errorElement: <Error />,  
+      element: <LandingPage />,
+      errorElement: <Error />,
     },
     {
       path: '/login',
@@ -30,26 +30,26 @@ function App() {
       element: <ApplicationsPage />,
       errorElement: <Error />,
     },
-    
-      {
-        path: 'AdminDashBoard',
-        element: (
-          <ProtectedRoutes>
-            <AdminDashBoard />
-          </ProtectedRoutes>
-        ),
-        errorElement: <Error />,
-        children: [
-          // { path: 'profile', element: <UserProfile /> },
-        ]
-      }
-    
+
+    {
+      path: 'AdminDashBoard',
+      element: (
+        <ProtectedRoutes>
+          <AdminDashBoard />
+        </ProtectedRoutes>
+      ),
+      errorElement: <Error />,
+      children: [
+        { path: 'AllElections', element: <AllElections /> },
+      ]
+    }
+
   ]);
 
   return (
     <>
-  
-      
+
+
       {/* The Router Provider */}
       <RouterProvider router={Router} />
     </>

@@ -31,10 +31,9 @@ interface AdminSideNavProps {
 
 const navItems: NavItem[] = [
   { name: "Root Terminal", path: "analytics", icon: <Activity size={18} />, color: "text-indigo-400" },
-  { name: "Manage Ballots", path: "AllElections", icon: <Vote size={18} />, color: "text-red-500" },
+  { name: "Manage Elections", path: "AllElections", icon: <Vote size={18} />, color: "text-red-500" },
   { name: "Position Registry", path: "manage-positions", icon: <MdBallot size={18} />, color: "text-blue-400" },
   { name: "Candidate Applications", path: "Manage-Applications", icon: <UserCircle size={18} />, color: "text-emerald-400" },
-  { name: "Security Ledger", path: "Hostel-verifications", icon: <ShieldCheck size={18} />, color: "text-yellow-400" },
   { name: "Live Results", path: "/results", icon: <Database size={18} />, color: "text-orange-500" },
   { name: "System Settings", path: "profile", icon: <Settings2 size={18} />, color: "text-teal-400" },
 ];
