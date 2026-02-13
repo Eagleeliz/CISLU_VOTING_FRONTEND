@@ -14,7 +14,7 @@ import {
 import { useDispatch } from "react-redux";
 
 import toast from "react-hot-toast";
-import { MdBallot } from "react-icons/md";
+import { MdBallot, MdEmojiPeople } from "react-icons/md";
 import { clearCredentials } from "../../Features/Auth/AuthSlice";
 
 // --- TYPES & INTERFACES ---
@@ -32,9 +32,9 @@ interface AdminSideNavProps {
 const navItems: NavItem[] = [
   { name: "Root Terminal", path: "analytics", icon: <Activity size={18} />, color: "text-indigo-400" },
   { name: "Manage Elections", path: "AllElections", icon: <Vote size={18} />, color: "text-red-500" },
-  { name: "Position Registry", path: "manage-positions", icon: <MdBallot size={18} />, color: "text-blue-400" },
+  { name: "Position Registry", path: "Manage-positions", icon: <MdBallot size={18} />, color: "text-blue-400" },
   { name: "Candidate Applications", path: "Manage-Applications", icon: <UserCircle size={18} />, color: "text-emerald-400" },
-  { name: "Live Results", path: "/results", icon: <Database size={18} />, color: "text-orange-500" },
+  { name: "Manage Candidates", path: "Manage-Candidates", icon: <MdEmojiPeople size={18} />, color: "text-orange-500" },
   { name: "System Settings", path: "profile", icon: <Settings2 size={18} />, color: "text-teal-400" },
 ];
 

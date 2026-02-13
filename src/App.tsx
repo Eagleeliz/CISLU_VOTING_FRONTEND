@@ -11,6 +11,9 @@ import Error from './pages/Error';
 import ProtectedRoutes from './components/ProtectedRoutes';
 import { AdminDashBoard } from './pages/AdminDashBoard';
 import { AllElections } from './DashBoards/AdminDashBoard/AllElections';
+import { AllPositions } from './DashBoards/AdminDashBoard/AllPositions';
+import { AllApplications } from './DashBoards/AdminDashBoard/AllApplications';
+import { AllCandidates } from './DashBoards/AdminDashBoard/AllCandidates';
 
 
 function App() {
@@ -41,6 +44,9 @@ function App() {
       errorElement: <Error />,
       children: [
         { path: 'AllElections', element: <AllElections /> },
+        { path: 'Manage-positions', element: <AllPositions /> },
+        { path: 'Manage-Applications', element: <AllApplications /> },
+        { path: 'Manage-Candidates', element: <AllCandidates /> },
       ]
     }
 

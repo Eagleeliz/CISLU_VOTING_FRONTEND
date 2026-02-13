@@ -5,6 +5,9 @@ import { authApi } from "../Features/Apis/Auth.APi";
 // Create Persist Configuration for auth Slice
 import authReducer from "../Features/Auth/AuthSlice";
 import { electionApi } from "../Features/Apis/Election.Api";
+import { positionApi } from "../Features/Apis/Position.Api";
+import { candidateApplicationApi } from "../Features/Apis/CandidatesApplication.Api";
+import { candidateApi } from "../Features/Apis/Candidate.Api";
  const authPersistConfiguration ={
     key: 'auth',
     storage,
@@ -19,12 +22,15 @@ export const store = configureStore({
         [authApi.reducerPath]:authApi.reducer,
         auth: persistedAuthReducer,
         [electionApi.reducerPath] :electionApi.reducer,
+        [positionApi.reducerPath]: positionApi.reducer,
+        [candidateApplicationApi.reducerPath]: candidateApplicationApi.reducer,
+        [candidateApi.reducerPath]: candidateApi.reducer,
       
     },
     middleware: (getDefaultMiddleware)=>
         getDefaultMiddleware({
             serializableCheck: false
-        }).concat(authApi.middleware,electionApi.middleware)
+        }).concat(authApi.middleware,electionApi.middleware,positionApi.middleware,candidateApplicationApi.middleware,candidateApi.middleware)
 })
 
 export const persister = persistStore(store);
