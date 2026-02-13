@@ -54,41 +54,11 @@ const Navbar = () => {
             CISLU<span className="text-red-500">Vote</span>
           </Link>
 
-<<<<<<< HEAD
-          {/* Desktop Links */}
-          <ul className="hidden md:flex gap-8 font-medium">
-            <li>
-              <Link className="text-white hover:text-red-500" to="/">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link className="text-white hover:text-red-500" to="/login">
-                Login
-              </Link>
-            </li>
-            <li>
-              <Link className="text-white hover:text-red-500" to="/register">
-                Register
-              </Link>
-            </li>
-            <li>
-              <Link className="text-white hover:text-red-500" to="/about">
-                About
-              </Link>
-            </li>
-            <li>
-              <Link className="text-white hover:text-red-500" to="/contact">
-                Contact
-              </Link>
-            </li>
-=======
           {/* Desktop Navigation */}
           <ul className="hidden md:flex items-center gap-8 font-medium">
             <li><Link className={`hover:text-red-500 flex items-center gap-1 ${isActive("/")}`} to="/"><Home size={18}/> Home</Link></li>
             <li><Link className={`hover:text-red-500 flex items-center gap-1 ${isActive("/about")}`} to="/about"><Info size={18}/> About</Link></li>
             <li><Link className={`hover:text-red-500 flex items-center gap-1 ${isActive("/contact")}`} to="/contact"><Phone size={18}/> Contact</Link></li>
->>>>>>> 0738f7b (Added Auth lOgin)
           </ul>
 
           {/* Auth Section */}
