@@ -135,13 +135,14 @@ const Navbar = () => {
                     <p className="text-xs font-black text-slate-900 truncate">{user?.studentRegNo || 'Member'}</p>
                   </div>
                   <div className="p-2">
-                    <Link to={userRole === "admin" ? "/AdminDashBoard" : "/Dashboard"} className="flex items-center gap-3 px-4 py-3 text-xs font-black text-slate-700 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all">
+                    <Link to={userRole === "admin" ? "/AdminDashBoard" : "/dashboard"} className="flex items-center gap-3 px-4 py-3 text-xs font-black text-slate-700 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all">
                       {userRole === "admin" ? <UserCheck size={16} /> : <User size={16} />} 
                       {userRole === "admin" ? "ADMIN CONSOLE" : "MY DASHBOARD"}
                     </Link>
                     <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-xs font-black text-red-600 hover:bg-red-50 rounded-xl transition-all mt-1">
                       <LogOut size={16} /> TERMINATE SESSION
                     </button>
+
                   </div>
                 </div>
               </div>
@@ -155,6 +156,7 @@ const Navbar = () => {
         </div>
       </nav>
 
+
       {/* Mobile Menu Overlay */}
       {menuOpen && (
         <div className="fixed inset-0 bg-indigo-950 z-[100] flex flex-col p-6 animate-in slide-in-from-right duration-500 overflow-y-auto">
@@ -164,6 +166,8 @@ const Navbar = () => {
               <X size={20} />
             </button>
           </div>
+
+
 
           {/* PERSONALIZED USER CARD (MOBILE) */}
           {isAuthenticated ? (
@@ -217,6 +221,9 @@ const Navbar = () => {
               )
             ))}
 
+
+
+          
             {/* DASHBOARD ACCESS (MOBILE) */}
             {isAuthenticated && (
               <Link 

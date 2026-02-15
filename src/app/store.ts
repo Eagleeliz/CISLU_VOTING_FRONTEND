@@ -9,30 +9,40 @@ import { positionApi } from "../Features/Apis/Position.Api";
 import { candidateApplicationApi } from "../Features/Apis/CandidatesApplication.Api";
 import { candidateApi } from "../Features/Apis/Candidate.Api";
 import { votesApi } from "../Features/Apis/Vote.Api";
- const authPersistConfiguration ={
+import { applicationApi } from "../Features/Apis/ApplicationApi"; // ✅ ADD THIS IMPORT
+
+const authPersistConfiguration ={
     key: 'auth',
     storage,
     whitelist: ['user','token','isAuthenticated','role']
- }
-//  Create A persistent Reducer for the AUTH
-const persistedAuthReducer =persistReducer(authPersistConfiguration,authReducer)
+}
 
+// Create A persistent Reducer for the AUTH
+const persistedAuthReducer = persistReducer(authPersistConfiguration, authReducer)
 
 export const store = configureStore({
     reducer: {
-        [authApi.reducerPath]:authApi.reducer,
+        [authApi.reducerPath]: authApi.reducer,
         auth: persistedAuthReducer,
-        [electionApi.reducerPath] :electionApi.reducer,
+        [electionApi.reducerPath]: electionApi.reducer,
         [positionApi.reducerPath]: positionApi.reducer,
         [candidateApplicationApi.reducerPath]: candidateApplicationApi.reducer,
         [candidateApi.reducerPath]: candidateApi.reducer,
         [votesApi.reducerPath]: votesApi.reducer,
-      
+        [applicationApi.reducerPath]: applicationApi.reducer, // ✅ ADD THIS LINE
     },
-    middleware: (getDefaultMiddleware)=>
+    middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             serializableCheck: false
-        }).concat(authApi.middleware,electionApi.middleware,positionApi.middleware,candidateApplicationApi.middleware,candidateApi.middleware, votesApi.middleware)
+        }).concat(
+            authApi.middleware,
+            electionApi.middleware,
+            positionApi.middleware,
+            candidateApplicationApi.middleware,
+            candidateApi.middleware,
+            votesApi.middleware,
+            applicationApi.middleware // ✅ ADD THIS LINE
+        )
 })
 
 export const persister = persistStore(store);

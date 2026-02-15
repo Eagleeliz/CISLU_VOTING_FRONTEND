@@ -21,14 +21,14 @@ import CandidateProfileView from './pages/ProfileVeiw';
 import VotingPage from './pages/Vote';
 import ResultsPage from './pages/Results';
 
+
 // User Dashboard
 import { UserLayout } from './DashBoards/DashBoardDesign/UserLayout';
 import DashboardHome from './DashBoards/UserDashboard/DashboardHome';
-import ApplicationsPage from './DashBoards/UserDashboard/Application';
+import ApplicationPage from './DashBoards/UserDashboard/ApplicationPage';  
 import ProfilePage from './DashBoards/UserDashboard/ProfilePage';
 import Results from './DashBoards/UserDashboard/Results';
-import ApplicationDetails from './DashBoards/UserDashboard/Application';
-import EditApplication from './DashBoards/UserDashboard/Application';
+
 import AboutPage from './pages/About';
 
 function App() {
@@ -89,11 +89,12 @@ function App() {
       errorElement: <Error />,
       children: [
         { index: true, element: <DashboardHome /> },
-        { path: 'applications', element: <ApplicationsPage /> },
-        { path: 'applications/:id', element: <ApplicationDetails /> },
-        { path: 'applications/:id/edit', element: <EditApplication /> },
-        { path: 'profile', element: <ProfilePage /> },
-        { path: 'results', element: <Results /> },
+    { path: 'applications', element: <ApplicationPage /> },           // List view
+    { path: 'applications/:id', element: <ApplicationPage /> },       // Details view
+    { path: 'applications/:id/edit', element: <ApplicationPage /> },  // Edit view
+    { path: 'profile', element: <ProfilePage /> },
+    { path: 'results', element: <Results /> },
+
       ]
     },
 
