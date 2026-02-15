@@ -6,7 +6,8 @@ import './App.css';
 // Public Pages
 import LandingPage from "./pages/LandingPage";
 import LogIn from "./pages/LogIn";
-import CompleteProfile from "./DashBoards/UserDashboard/CompleteProfile";
+// Ensure this path matches where you saved the updated CompleteProfile file
+import CompleteProfile from "./DashBoards/UserDashboard/CompleteProfile"; 
 import Error from './pages/Error';
 import ProtectedRoutes from './components/ProtectedRoutes';
 
@@ -20,7 +21,6 @@ import CandidatesPage from './pages/Candidates';
 import CandidateProfileView from './pages/ProfileVeiw';
 import VotingPage from './pages/Vote';
 import ResultsPage from './pages/Results';
-
 
 // User Dashboard
 import { UserLayout } from './DashBoards/DashBoardDesign/UserLayout';
@@ -45,38 +45,41 @@ function App() {
       errorElement: <Error />,
     },
     {
-      path: '/complete-profile',
-      element: <CompleteProfile />,
-      errorElement: <Error />,
-    },
-    {
       path: '/voting',
       element: <VotingPage />,
       errorElement: <Error />,
     },
-     {
+    {
       path: '/results',
       element: <ResultsPage />,
       errorElement: <Error />,
     },
-    
     {
        path: '/Candidates',
        element: <CandidatesPage />,
        errorElement: <Error />,
     },
     {
-      // This path captures the unique ID from the URL
       path: '/Candidates/profile/:applicationId',
       element: <CandidateProfileView />,
       errorElement: <Error />,
     },
-     {
+    {
        path: '/about',
        element: <AboutPage />,
        errorElement: <Error />,
     },
-    
+
+    // PROFILE COMPLETION (Now Protected)
+    {
+      path: '/complete-profile',
+      element: (
+        <ProtectedRoutes>
+          <CompleteProfile />
+        </ProtectedRoutes>
+      ),
+      errorElement: <Error />,
+    },
 
     // USER DASHBOARD ROUTES (Protected)
     {
@@ -89,12 +92,11 @@ function App() {
       errorElement: <Error />,
       children: [
         { index: true, element: <DashboardHome /> },
-    { path: 'applications', element: <ApplicationPage /> },           // List view
-    { path: 'applications/:id', element: <ApplicationPage /> },       // Details view
-    { path: 'applications/:id/edit', element: <ApplicationPage /> },  // Edit view
-    { path: 'profile', element: <ProfilePage /> },
-    { path: 'results', element: <Results /> },
-
+        { path: 'applications', element: <ApplicationPage /> },
+        { path: 'applications/:id', element: <ApplicationPage /> },
+        { path: 'applications/:id/edit', element: <ApplicationPage /> },
+        { path: 'profile', element: <ProfilePage /> },
+        { path: 'results', element: <Results /> },
       ]
     },
 
@@ -116,14 +118,12 @@ function App() {
       ]
     },
 
-    // Redirect old applications route to new dashboard
+    // Redirects & Catch-all
     {
       path: '/applications',
       element: <Navigate to="/dashboard/applications" replace />,
       errorElement: <Error />,
     },
-
-    // Catch all unmatched routes - redirect to home
     {
       path: '*',
       element: <Navigate to="/" replace />,

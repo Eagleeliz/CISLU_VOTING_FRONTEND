@@ -5,9 +5,21 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export type ApplicationStatus = "pending" | "under_review" | "approved" | "rejected";
 
 export interface User {
-  fullName: string;
+  id: string;
   studentRegNo: string;
+  fullName: string;
+  role: string;
+  yearOfStudy?: string;
   participationPoints?: number;
+  email?: string; // Added email for profile completion
+}
+
+// Interface for the profile update request
+export interface CompleteProfileRequest {
+  studentRegNo: string;
+  fullName: string;
+  yearOfStudy: string;
+  email: string;
 }
 
 export interface Position {
@@ -80,97 +92,75 @@ const baseQuery = fetchBaseQuery({
 export const applicationApi = createApi({
   reducerPath: "applicationApi",
   baseQuery,
-  tagTypes: ["MyApplications", "Application"],
+  tagTypes: ["MyApplications", "Application", "User"],
   endpoints: (builder) => ({
     
-    // GET MY APPLICATIONS - Using REAL backend data
+    // 1. PROFILE COMPLETION MUTATION
+    // This talks to your Auth Controller section 3
+    completeProfile: builder.mutation<{ message: string; user: User }, CompleteProfileRequest>({
+      query: (body) => ({
+        url: "auth/complete-profile", // Matches your backend route
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["User"], // Refresh user data everywhere
+    }),
+
+    // 2. GET MY APPLICATIONS
     getMyApplications: builder.query<ApplicationWithDetails[], void>({
       query: () => `candidate-applications/my`,
       providesTags: ["MyApplications"],
       transformResponse: (response: any) => {
-        console.log("📦 Real backend response:", response);
-        
-        // Your backend returns { applications: [...] }
         if (response.applications && Array.isArray(response.applications)) {
           return response.applications;
         }
-        
-        // If response is already an array
-        if (Array.isArray(response)) {
-          return response;
-        }
-        
-        // Return empty array if no data
-        return [];
+        return Array.isArray(response) ? response : [];
       },
     }),
 
-    // GET SINGLE APPLICATION BY ID
+    // 3. GET SINGLE APPLICATION BY ID
     getApplicationById: builder.query<ApplicationWithDetails, string>({
       query: (id) => `candidate-applications/${id}`,
       providesTags: (result, error, id) => [{ type: "Application", id }],
-      transformResponse: (response: any) => {
-        console.log("📦 Single application response:", response);
-        // Your backend returns the application directly
-        return response;
-      },
     }),
 
-    // CREATE APPLICATION
+    // 4. CREATE APPLICATION
     createApplication: builder.mutation<any, CreateApplicationRequest>({
       query: (body) => ({
         url: "candidate-applications",
         method: "POST",
         body,
       }),
-      transformResponse: (response: any) => {
-        console.log("✅ Application created:", response);
-        return response;
-      },
-      transformErrorResponse: (response: any) => {
-        console.error("❌ Application creation error:", response);
-        return response;
-      },
       invalidatesTags: ["MyApplications"],
     }),
 
-    // UPDATE APPLICATION
+    // 5. UPDATE APPLICATION
     updateMyApplication: builder.mutation<any, { id: string; updates: UpdateManifestoRequest }>({
       query: ({ id, updates }) => ({
         url: `candidate-applications/${id}`,
         method: "PATCH",
         body: updates,
       }),
-      transformResponse: (response: any) => {
-        console.log("✅ Application updated:", response);
-        return response;
-      },
       invalidatesTags: (result, error, { id }) => [
         { type: "Application", id },
         "MyApplications",
       ],
     }),
 
-    // WITHDRAW APPLICATION
+    // 6. WITHDRAW APPLICATION
     withdrawApplication: builder.mutation<any, string>({
       query: (id) => ({
         url: `candidate-applications/${id}/withdraw`,
         method: "DELETE",
       }),
-      transformResponse: (response: any) => {
-        console.log("✅ Application withdrawn:", response);
-        return response;
-      },
-      invalidatesTags: (result, error, id) => [
-        { type: "Application", id },
-        "MyApplications",
-      ],
+      invalidatesTags: ["MyApplications"],
     }),
   }),
 });
 
 // Export all hooks
 export const {
+  useCompleteProfileMutation, // <--- Use this in your CompleteProfile.tsx
   useCreateApplicationMutation,
   useGetApplicationByIdQuery,
   useGetMyApplicationsQuery,

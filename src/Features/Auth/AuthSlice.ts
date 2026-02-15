@@ -1,12 +1,13 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-// Define specific interfaces based on your backend response
-interface User {
+export interface User {
   id: string;
   studentRegNo: string;
   fullName: string;
   role: string;
-  yearOfStudy: string;
+  yearOfStudy?: string;
+  participationPoints?: number;
+  email?: string;
 }
 
 interface AuthState {
@@ -16,22 +17,21 @@ interface AuthState {
   requireProfileCompletion: boolean;
 }
 
-// Persistence: Sync with localStorage to handle page refreshes
 const storedToken = localStorage.getItem("token");
 const storedUser = localStorage.getItem("user");
+const storedRequireCompletion = localStorage.getItem("requireProfileCompletion") === "true";
 
 const initialState: AuthState = {
   user: storedUser ? JSON.parse(storedUser) : null,
   token: storedToken || null,
   isAuthenticated: !!storedToken,
-  requireProfileCompletion: false,
+  requireProfileCompletion: storedRequireCompletion, 
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    // Matches your: { message, token, user, requireProfileCompletion }
     setCredentials: (
       state,
       action: PayloadAction<{ 
@@ -41,15 +41,19 @@ const authSlice = createSlice({
       }>
     ) => {
       const { user, token, requireProfileCompletion } = action.payload;
-      
       state.user = user;
       state.token = token;
       state.isAuthenticated = true;
       state.requireProfileCompletion = requireProfileCompletion;
 
-      // Deep Tech Persistence
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("requireProfileCompletion", String(requireProfileCompletion));
+    },
+
+    completeProfile: (state) => {
+      state.requireProfileCompletion = false;
+      localStorage.setItem("requireProfileCompletion", "false");
     },
 
     clearCredentials: (state) => {
@@ -57,10 +61,7 @@ const authSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
       state.requireProfileCompletion = false;
-
-      // Clean up the digital footprint
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      localStorage.clear();
     },
 
     updateUserData: (state, action: PayloadAction<Partial<User>>) => {
@@ -72,5 +73,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, clearCredentials, updateUserData } = authSlice.actions;
+export const { setCredentials, clearCredentials, updateUserData, completeProfile } = authSlice.actions;
 export default authSlice.reducer;
