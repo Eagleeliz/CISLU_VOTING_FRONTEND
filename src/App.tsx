@@ -16,6 +16,10 @@ import { AllElections } from './DashBoards/AdminDashBoard/AllElections';
 import { AllPositions } from './DashBoards/AdminDashBoard/AllPositions';
 import { AllApplications as AdminAllApplications } from './DashBoards/AdminDashBoard/AllApplications';
 import { AllCandidates } from './DashBoards/AdminDashBoard/AllCandidates';
+import CandidatesPage from './pages/Candidates';
+import CandidateProfileView from './pages/ProfileVeiw';
+import VotingPage from './pages/Vote';
+import ResultsPage from './pages/Results';
 
 // User Dashboard
 import { UserLayout } from './DashBoards/DashBoardDesign/UserLayout';
@@ -44,6 +48,29 @@ function App() {
       element: <CompleteProfile />,
       errorElement: <Error />,
     },
+    {
+      path: '/voting',
+      element: <VotingPage />,
+      errorElement: <Error />,
+    },
+     {
+      path: '/results',
+      element: <ResultsPage />,
+      errorElement: <Error />,
+    },
+    
+    {
+       path: '/Candidates',
+       element: <CandidatesPage />,
+       errorElement: <Error />,
+    },
+    {
+      // This path captures the unique ID from the URL
+      path: '/Candidates/profile/:applicationId',
+      element: <CandidateProfileView />,
+      errorElement: <Error />,
+    },
+    
 
     // USER DASHBOARD ROUTES (Protected)
     {

@@ -8,6 +8,7 @@ import { electionApi } from "../Features/Apis/Election.Api";
 import { positionApi } from "../Features/Apis/Position.Api";
 import { candidateApplicationApi } from "../Features/Apis/CandidatesApplication.Api";
 import { candidateApi } from "../Features/Apis/Candidate.Api";
+import { votesApi } from "../Features/Apis/Vote.Api";
  const authPersistConfiguration ={
     key: 'auth',
     storage,
@@ -25,12 +26,13 @@ export const store = configureStore({
         [positionApi.reducerPath]: positionApi.reducer,
         [candidateApplicationApi.reducerPath]: candidateApplicationApi.reducer,
         [candidateApi.reducerPath]: candidateApi.reducer,
+        [votesApi.reducerPath]: votesApi.reducer,
       
     },
     middleware: (getDefaultMiddleware)=>
         getDefaultMiddleware({
             serializableCheck: false
-        }).concat(authApi.middleware,electionApi.middleware,positionApi.middleware,candidateApplicationApi.middleware,candidateApi.middleware)
+        }).concat(authApi.middleware,electionApi.middleware,positionApi.middleware,candidateApplicationApi.middleware,candidateApi.middleware, votesApi.middleware)
 })
 
 export const persister = persistStore(store);

@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+// --- UPDATED TYPES TO SUPPORT FULL PROFILE DATA ---
 export interface CandidateApplication {
   id: string;
   userId: string;
@@ -11,7 +12,38 @@ export interface CandidateApplication {
   requiredPoints: number;
   status: 'pending' | 'under_review' | 'approved' | 'rejected';
   adminRemarks?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
   createdAt: string;
+  // Nested data for Profile View
+  user: {
+    id: string;
+    studentRegNo: string;
+    email: string;
+    fullName: string;
+    yearOfStudy: string;
+    role: string;
+    participationPoints: number;
+    isGoodStanding: boolean;
+  };
+  election: {
+    id: string;
+    title: string;
+    description: string;
+    status: string;
+    startDate: string;
+    endDate: string;
+  };
+  position: {
+    id: string;
+    title: string;
+    minParticipationPoints: number;
+    slotsAvailable: number;
+    targetYears: string[];
+  };
+  reviewer?: {
+    fullName: string;
+  };
 }
 
 export const candidateApplicationApi = createApi({
@@ -53,15 +85,16 @@ export const candidateApplicationApi = createApi({
     // 3. LIST ALL CANDIDATES FOR ELECTION (GET /election/:electionId)
     getCandidatesByElection: builder.query<CandidateApplication[], string>({
       query: (electionId) => `/election/${electionId}`,
-      // Unwrapping the response assuming the backend sends { applications: [] }
       transformResponse: (response: { applications: CandidateApplication[] } | CandidateApplication[]) => 
         Array.isArray(response) ? response : response.applications,
       providesTags: ["Applications"],
     }),
 
     // 4. VIEW CANDIDATE BIO (GET /:id)
+    // Updated to handle the nested response object
     getApplicationDetails: builder.query<CandidateApplication, string>({
       query: (id) => `/${id}`,
+      transformResponse: (response: any) => response.application || response,
       providesTags: (result, error, id) => [{ type: "Applications", id }],
     }),
 
