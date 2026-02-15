@@ -29,6 +29,7 @@ import ProfilePage from './DashBoards/UserDashboard/ProfilePage';
 import Results from './DashBoards/UserDashboard/Results';
 import ApplicationDetails from './DashBoards/UserDashboard/Application';
 import EditApplication from './DashBoards/UserDashboard/Application';
+import AboutPage from './pages/About';
 
 function App() {
   const Router = createBrowserRouter([
@@ -69,6 +70,11 @@ function App() {
       path: '/Candidates/profile/:applicationId',
       element: <CandidateProfileView />,
       errorElement: <Error />,
+    },
+     {
+       path: '/about',
+       element: <AboutPage />,
+       errorElement: <Error />,
     },
     
 
