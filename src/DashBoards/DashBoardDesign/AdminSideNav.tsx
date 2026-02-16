@@ -9,7 +9,8 @@ import {
   Database,
   Users,
   UserCircle,
-  ShieldCheck
+  ShieldCheck,
+  GitGraph
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 
@@ -30,6 +31,7 @@ interface AdminSideNavProps {
 }
 
 const navItems: NavItem[] = [
+  { name: "Analytics", path: "Analytics", icon: <GitGraph size={18} />, color: "text-indigo-400" },
   { name: "Manage Users", path: "Manage-Users", icon: <Users size={18} />, color: "text-indigo-400" },
   { name: "Manage Elections", path: "AllElections", icon: <Vote size={18} />, color: "text-red-500" },
   { name: "Position Registry", path: "Manage-positions", icon: <MdBallot size={18} />, color: "text-blue-400" },

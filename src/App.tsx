@@ -31,6 +31,8 @@ import Results from './DashBoards/UserDashboard/Results';
 
 import AboutPage from './pages/About';
 import { AllUsers } from './DashBoards/AdminDashBoard/AllUsers';
+import { GeneralAnalytics } from './DashBoards/AdminDashBoard/Analytics';
+
 
 function App() {
   const Router = createBrowserRouter([
@@ -111,7 +113,8 @@ function App() {
       ),
       errorElement: <Error />,
       children: [
-        { index: true, element: <Navigate to="AllElections" replace /> },
+        { index: true, element: <Navigate to="Analytics" replace /> },
+        { path: 'Analytics', element: <GeneralAnalytics/> },
         { path: 'AllElections', element: <AllElections /> },
         { path: 'Manage-positions', element: <AllPositions /> },
         { path: 'Manage-Applications', element: <AdminAllApplications /> },
