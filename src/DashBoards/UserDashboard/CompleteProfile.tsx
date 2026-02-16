@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUserData, completeProfile } from "../../Features/Auth/AuthSlice";
@@ -7,7 +7,7 @@ import { useCompleteProfileMutation } from "../../Features/Apis/ApplicationApi";
 import type { RootState } from "../../app/store";
 import Navbar from "../../components/Navbar";
 import toast from "react-hot-toast";
-import { User, Mail, GraduationCap, ShieldCheck, ArrowRight, Loader2 } from "lucide-react";
+import { User, Mail, GraduationCap, ShieldCheck, ArrowRight, Loader2, Lock } from "lucide-react";
 
 const CompleteProfile = () => {
   const navigate = useNavigate();
@@ -16,24 +16,35 @@ const CompleteProfile = () => {
   
   const [saveProfile, { isLoading }] = useCompleteProfileMutation();
 
+  // Initializing with values from Redux/Local Storage
   const [formData, setFormData] = useState({
     fullName: "",
     yearOfStudy: "",
-    email: ""
+    studentRegNo: user?.studentRegNo || "",
+    email: user?.email || ""
   });
+
+  // Effect to ensure data is populated if Redux state updates after mount
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        studentRegNo: user.studentRegNo || "",
+        email: user.email || ""
+      }));
+    }
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      // Sending the exact payload your working PUT request uses
       const result = await saveProfile({
-        studentRegNo: user?.studentRegNo || "",
+        studentRegNo: formData.studentRegNo,
         fullName: formData.fullName,
         yearOfStudy: formData.yearOfStudy,
         email: formData.email
       }).unwrap();
 
-      // Syncing the "user" object from your successful JSON response to Redux
       dispatch(updateUserData(result.user));
       dispatch(completeProfile());
       
@@ -81,18 +92,39 @@ const CompleteProfile = () => {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               
-              {/* Read Only Reg No Card */}
-              <div className="p-4 bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl flex items-center gap-4 mb-8">
-                <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-sm">
-                    <ShieldCheck className="text-green-500" size={24} />
-                </div>
-                <div>
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Authenticated ID</p>
-                    <p className="text-sm font-black text-indigo-950">{user?.studentRegNo || "PENDING..."}</p>
+              {/* Registration Number (Uneditable) */}
+              <div className="group">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 mb-1.5 flex items-center gap-2">
+                  <Lock size={12} /> Authenticated ID
+                </label>
+                <div className="relative">
+                  <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                  <input 
+                    type="text"
+                    readOnly
+                    value={formData.studentRegNo}
+                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-400 cursor-not-allowed outline-none shadow-sm"
+                  />
                 </div>
               </div>
 
-              {/* Input: Full Name */}
+              {/* Input: Email (Uneditable) */}
+              <div className="group">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 mb-1.5 flex items-center gap-2">
+                   <Lock size={12} /> Primary Email
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                  <input 
+                    type="email"
+                    readOnly
+                    value={formData.email}
+                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-400 cursor-not-allowed outline-none shadow-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Input: Full Name (Editable) */}
               <div className="group">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 mb-1.5 block">Full Legal Name</label>
                 <div className="relative">
@@ -101,19 +133,21 @@ const CompleteProfile = () => {
                     type="text"
                     required
                     placeholder="Enter full name"
+                    value={formData.fullName}
                     className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl focus:border-red-500 outline-none transition-all font-bold text-slate-900 shadow-sm"
                     onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                   />
                 </div>
               </div>
 
-              {/* Input: Year */}
+              {/* Input: Year (Editable) */}
               <div className="group">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 mb-1.5 block">Current Year of Study</label>
                 <div className="relative">
                   <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-red-500 transition-colors" size={18} />
                   <select 
                     required
+                    value={formData.yearOfStudy}
                     className="w-full pl-12 pr-10 py-4 bg-white border-2 border-slate-100 rounded-2xl focus:border-red-500 outline-none transition-all font-bold text-slate-900 appearance-none shadow-sm"
                     onChange={(e) => setFormData({...formData, yearOfStudy: e.target.value})}
                   >
@@ -123,21 +157,6 @@ const CompleteProfile = () => {
                     <option value="3">Year 3</option>
                     <option value="4">Year 4</option>
                   </select>
-                </div>
-              </div>
-
-              {/* Input: Email */}
-              <div className="group">
-                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1 mb-1.5 block">Email Address</label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-red-500 transition-colors" size={18} />
-                  <input 
-                    type="email"
-                    required
-                    placeholder="student@cislu.com"
-                    className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl focus:border-red-500 outline-none transition-all font-bold text-slate-900 shadow-sm"
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  />
                 </div>
               </div>
 
