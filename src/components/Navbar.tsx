@@ -132,7 +132,7 @@ const Navbar = () => {
                 <div className="absolute right-0 mt-3 w-60 origin-top-right rounded-2xl bg-white shadow-[0_20px_50px_rgba(0,0,0,0.3)] ring-1 ring-black/5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-4 overflow-hidden z-[60]">
                   <div className="bg-slate-50 px-5 py-4 border-b border-slate-100">
                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Verified ID</p>
-                    <p className="text-xs font-black text-slate-900 truncate">{user?.studentRegNo || 'Member'}</p>
+                    <p className="text-xs font-black text-slate-900 truncate">{user?.fullName || 'Member'}</p>
                   </div>
                   <div className="p-2">
                     <Link to={userRole === "admin" ? "/AdminDashBoard" : "/dashboard"} className="flex items-center gap-3 px-4 py-3 text-xs font-black text-slate-700 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all">

@@ -10,6 +10,7 @@ import { candidateApplicationApi } from "../Features/Apis/CandidatesApplication.
 import { candidateApi } from "../Features/Apis/Candidate.Api";
 import { votesApi } from "../Features/Apis/Vote.Api";
 import { applicationApi } from "../Features/Apis/ApplicationApi"; // ✅ ADD THIS IMPORT
+import { userApi } from "../Features/Apis/Users.Api";
 
 const authPersistConfiguration ={
     key: 'auth',
@@ -30,6 +31,7 @@ export const store = configureStore({
         [candidateApi.reducerPath]: candidateApi.reducer,
         [votesApi.reducerPath]: votesApi.reducer,
         [applicationApi.reducerPath]: applicationApi.reducer, // ✅ ADD THIS LINE
+        [userApi.reducerPath]: userApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
@@ -41,7 +43,8 @@ export const store = configureStore({
             candidateApplicationApi.middleware,
             candidateApi.middleware,
             votesApi.middleware,
-            applicationApi.middleware // ✅ ADD THIS LINE
+            applicationApi.middleware, // ✅ ADD THIS LINE
+            userApi.middleware,
         )
 })
 

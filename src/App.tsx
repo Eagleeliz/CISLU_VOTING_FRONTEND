@@ -30,6 +30,7 @@ import ProfilePage from './DashBoards/UserDashboard/ProfilePage';
 import Results from './DashBoards/UserDashboard/Results';
 
 import AboutPage from './pages/About';
+import { AllUsers } from './DashBoards/AdminDashBoard/AllUsers';
 
 function App() {
   const Router = createBrowserRouter([
@@ -115,6 +116,7 @@ function App() {
         { path: 'Manage-positions', element: <AllPositions /> },
         { path: 'Manage-Applications', element: <AdminAllApplications /> },
         { path: 'Manage-Candidates', element: <AllCandidates /> },
+        { path: 'Manage-Users', element: <AllUsers /> },
       ]
     },
 
