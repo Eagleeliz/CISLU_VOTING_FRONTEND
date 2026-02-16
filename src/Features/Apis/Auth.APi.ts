@@ -4,7 +4,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export interface RegisterRequest {
   studentRegNo: string;
   email: string;
-  role?: "voter" | "admin";
+  role?: "member" | "admin";
 }
 
 export interface LoginRequest {
@@ -22,9 +22,11 @@ export interface ResetPasswordRequest {
   newPassword: string;
 }
 
+// Updated to include studentRegNo for the URL logic
 export interface CompleteProfileRequest {
+  studentRegNo: string; 
   fullName: string;
-  yearOfStudy: number | string;
+  yearOfStudy: string;
   email: string;
 }
 
@@ -39,12 +41,9 @@ export interface AuthResponse {
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    // Pointing to your local development server
     baseUrl: "http://localhost:5000/api/auth/",
     prepareHeaders: (headers, { getState }) => {
-      // Pull token from Redux or LocalStorage
       let token = (getState() as any).auth.token || localStorage.getItem("token");
-
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
@@ -54,62 +53,36 @@ export const authApi = createApi({
   }),
   tagTypes: ["User"],
   endpoints: (builder) => ({
-    // 1. Register
     register: builder.mutation<AuthResponse, RegisterRequest>({
-      query: (payload) => ({
-        url: "register",
-        method: "POST",
-        body: payload,
-      }),
+      query: (payload) => ({ url: "register", method: "POST", body: payload }),
     }),
 
-    // 2. Login
     login: builder.mutation<AuthResponse, LoginRequest>({
-      query: (payload) => ({
-        url: "login",
-        method: "POST",
-        body: payload,
-      }),
+      query: (payload) => ({ url: "login", method: "POST", body: payload }),
     }),
 
-    // 3. Forgot Password
     forgotPassword: builder.mutation<{ message: string }, ForgotPasswordRequest>({
-      query: (payload) => ({
-        url: "forgot-password",
-        method: "POST",
-        body: payload,
-      }),
+      query: (payload) => ({ url: "forgot-password", method: "POST", body: payload }),
     }),
 
-    // 4. Reset Password
     resetPassword: builder.mutation<{ message: string }, ResetPasswordRequest>({
-      query: (payload) => ({
-        url: "reset-password",
-        method: "POST",
-        body: payload,
-      }),
+      query: (payload) => ({ url: "reset-password", method: "POST", body: payload }),
     }),
 
-    // 5. Complete Profile (Authenticated)
+    // FIXED: Uses query params for RegNo to satisfy Controller + Zod Body requirements
     completeProfile: builder.mutation<AuthResponse, CompleteProfileRequest>({
-      query: (payload) => ({
-        url: "complete-profile",
+      query: ({ studentRegNo, ...body }) => ({
+        url: `complete-profile?studentRegNo=${encodeURIComponent(studentRegNo)}`,
         method: "PUT",
-        body: payload,
+        body: body, // Sends fullName, yearOfStudy, email in the body
       }),
       invalidatesTags: ["User"],
     }),
 
-    // 6. Update Password (Authenticated)
     updatePassword: builder.mutation<AuthResponse, { password: string }>({
-      query: (payload) => ({
-        url: "update-password",
-        method: "PUT",
-        body: payload,
-      }),
+      query: (payload) => ({ url: "update-password", method: "PUT", body: payload }),
     }),
 
-    // 7. Get User by Registration Number
     getUserByRegNo: builder.query<any, string>({
       query: (studentRegNo) => ({
         url: `user/by-reg-no?studentRegNo=${encodeURIComponent(studentRegNo)}`,
@@ -120,7 +93,6 @@ export const authApi = createApi({
   }),
 });
 
-// -------------------- HOOKS --------------------
 export const {
   useRegisterMutation,
   useLoginMutation,

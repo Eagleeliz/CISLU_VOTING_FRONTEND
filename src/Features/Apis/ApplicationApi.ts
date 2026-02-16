@@ -100,7 +100,7 @@ export const applicationApi = createApi({
     completeProfile: builder.mutation<{ message: string; user: User }, CompleteProfileRequest>({
       query: (body) => ({
         url: "auth/complete-profile", // Matches your backend route
-        method: "POST",
+        method: "PUT",
         body,
       }),
       invalidatesTags: ["User"], // Refresh user data everywhere
