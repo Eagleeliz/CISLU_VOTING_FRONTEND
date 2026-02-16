@@ -137,7 +137,7 @@ const Navbar = () => {
                   <div className="p-2">
                     <Link to={userRole === "admin" ? "/AdminDashBoard" : "/dashboard"} className="flex items-center gap-3 px-4 py-3 text-xs font-black text-slate-700 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all">
                       {userRole === "admin" ? <UserCheck size={16} /> : <User size={16} />} 
-                      {userRole === "admin" ? "ADMIN CONSOLE" : "MY DASHBOARD"}
+                      {userRole === "admin" ? "ADMIN CONSOLE" : "MEMBER DASHBOARD"}
                     </Link>
                     <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-xs font-black text-red-600 hover:bg-red-50 rounded-xl transition-all mt-1">
                       <LogOut size={16} /> TERMINATE SESSION
@@ -241,7 +241,6 @@ const Navbar = () => {
             {!isAuthenticated ? (
               <div className="flex flex-col gap-3">
                 <Link to="/login" onClick={() => setMenuOpen(false)} className="w-full py-4 rounded-2xl bg-white text-indigo-950 font-black text-center text-xs tracking-widest uppercase">Login</Link>
-                <Link to="/register" onClick={() => setMenuOpen(false)} className="w-full py-4 rounded-2xl bg-red-600 text-white font-black text-center text-xs tracking-widest uppercase">Register</Link>
               </div>
             ) : (
               <button onClick={handleLogout} className="w-full flex items-center justify-center gap-3 py-4 bg-red-500/10 text-red-500 rounded-2xl font-black border border-red-500/20 text-[10px] tracking-widest uppercase">
