@@ -1,3 +1,4 @@
+// DashBoards/UserDashboard/CandidatesPage.tsx
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -110,7 +111,6 @@ const CandidatesPage = () => {
           Object.keys(groupedCandidates).map((positionTitle) => (
             <section key={positionTitle} className="mb-20">
               
-              {/* UPDATED POSITION HEADER WITH COUNT BADGE */}
               <div className="flex items-center gap-5 mb-10">
                 <div className="bg-slate-900 text-white px-5 py-2.5 rounded-2xl shadow-lg flex items-center gap-4">
                   <span className="text-[11px] font-black uppercase tracking-[0.1em]">{positionTitle}</span>
@@ -128,16 +128,20 @@ const CandidatesPage = () => {
                 {groupedCandidates[positionTitle].map((candidate: any) => (
                   <div key={candidate.id} className="group bg-white border border-slate-200 rounded-[2.5rem] flex flex-col hover:shadow-2xl transition-all duration-500 overflow-hidden relative">
                     
-                    {/* Top Decorator */}
                     <div className="absolute top-0 left-0 w-full h-1 bg-transparent group-hover:bg-red-600 transition-colors" />
 
                     {/* Top: Identity Header */}
                     <div className="p-8 pb-0 flex items-start justify-between">
                        <div className="relative">
+                          {/* UPDATED IMAGE LOGIC: prioritized imageUrl or profileImage, falls back to initials */}
                           <img 
-                            src={candidate.profileImage || `https://ui-avatars.com/api/?name=${candidate.fullName}`} 
+                            src={candidate.imageUrl || candidate.profileImage || `https://ui-avatars.com/api/?name=${encodeURIComponent(candidate.fullName)}&background=f1f5f9&color=0f172a&bold=true&font-size=0.33`} 
                             className="w-24 h-24 rounded-2xl object-cover ring-4 ring-slate-50 group-hover:scale-105 transition-transform duration-500 shadow-lg"
                             alt={candidate.fullName} 
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(candidate.fullName)}&background=f1f5f9&color=0f172a&bold=true&font-size=0.33`;
+                            }}
                           />
                           <div className="absolute -bottom-2 -right-2 bg-red-600 text-white p-2 rounded-xl shadow-xl z-10 border-2 border-white">
                             <Fingerprint size={14} />
@@ -180,9 +184,9 @@ const CandidatesPage = () => {
                       >
                         SEE FULL PROFILE <ChevronRight size={16} />
                       </button>
-                      <button className="w-full bg-white border border-slate-200 text-slate-900 py-4.5 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-slate-50 transition-all active:scale-[0.98]">
+                      {/* <button className="w-full bg-white border border-slate-200 text-slate-900 py-4.5 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-slate-50 transition-all active:scale-[0.98]">
                         Quick Vote
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 ))}

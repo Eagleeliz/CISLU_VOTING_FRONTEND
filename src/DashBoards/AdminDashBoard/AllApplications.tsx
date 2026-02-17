@@ -1,19 +1,20 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useSelector } from "react-redux";
+// Import from the corrected applicationApi
 import {
-  useGetCandidatesByElectionQuery,
+  useGetApplicationsByElectionQuery,
+  useReviewApplicationMutation,
   useDisqualifyCandidateMutation,
-} from "../../Features/Apis/CandidatesApplication.Api";
+} from "../../Features/Apis/ApplicationApi"; 
 import { useGetAllElectionsQuery } from "../../Features/Apis/Election.Api";
 import { 
   Search, X, Loader2, RefreshCw, 
-  ShieldCheck, CheckCircle2, Zap, 
+  ShieldCheck, Zap, 
   Trash2, Eye, ChevronLeft, ChevronRight,
   User, FileText, Terminal
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { RootState } from "../../app/store";
-import { usePromoteApplicationMutation } from "../../Features/Apis/Candidate.Api";
 
 export const AllApplications = () => {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -33,17 +34,18 @@ export const AllApplications = () => {
     }
   }, [elections, selectedElectionId]);
 
+  // Using the corrected query hook
   const { 
     data: applications, 
     isLoading, 
     refetch, 
     isFetching 
-  } = useGetCandidatesByElectionQuery(selectedElectionId, {
+  } = useGetApplicationsByElectionQuery(selectedElectionId, {
     skip: !selectedElectionId,
   });
 
-  // Updated mutation hook
-  const [promoteApplication, { isLoading: isReviewing }] = usePromoteApplicationMutation();
+  // Using the corrected mutation hook from applicationApi
+  const [reviewApplication, { isLoading: isReviewing }] = useReviewApplicationMutation();
   const [disqualifyCandidate] = useDisqualifyCandidateMutation();
 
   /* ================= UI STATE ================= */
@@ -56,7 +58,7 @@ export const AllApplications = () => {
 
   /* ================= FORM STATE ================= */
   const [reviewData, setReviewData] = useState({
-    status: "approved",
+    status: "approved" as "approved" | "rejected",
     adminRemarks: ""
   });
 
@@ -64,7 +66,7 @@ export const AllApplications = () => {
   const handleOpenReview = (app: any) => {
     setViewingApp(app);
     setReviewData({
-      status: app.status === 'pending' ? 'approved' : app.status,
+      status: app.status === 'pending' || app.status === 'under_review' ? 'approved' : app.status,
       adminRemarks: app.adminRemarks || ""
     });
     setIsPanelOpen(true);
@@ -72,18 +74,25 @@ export const AllApplications = () => {
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!viewingApp) return;
+
     try {
-      // If status is approved, we execute the promotion sequence (moves to ballot)
-      if (reviewData.status === "approved") {
-        await promoteApplication(viewingApp.id).unwrap();
-        toast.success(`${viewingApp.userId}_PROMOTED_TO_BALLOT`);
-        refetch(); // Refresh to see updated list
-      } else {
-        toast.error("Promotion requires 'Approved' status");
-      }
+      // Logic fix: This mutation now triggers the backend transaction 
+      // which updates status AND promotes to the candidates table if approved.
+      await reviewApplication({
+        id: viewingApp.id,
+        status: reviewData.status,
+        adminRemarks: reviewData.adminRemarks
+      }).unwrap();
+
+      const successMsg = reviewData.status === 'approved' 
+        ? "CANDIDATE_PROMOTED_TO_BALLOT_SUCCESS" 
+        : `DECISION_EXECUTED:_${reviewData.status.toUpperCase()}`;
+      
+      toast.success(successMsg);
       setIsPanelOpen(false);
     } catch (err: any) {
-      toast.error(err.data?.message || "Promotion failed");
+      toast.error(err.data?.message || "Review process failed");
     }
   };
 
@@ -102,7 +111,9 @@ export const AllApplications = () => {
   const { paginatedApps, totalPages } = useMemo(() => {
     const rawList = Array.isArray(applications) ? applications : [];
     const filtered = rawList.filter((app: any) => {
-      const matchesSearch = app.userId?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      // Checking both userId and the user object's fullName if available
+      const userName = app.user?.fullName || app.userId || "";
+      const matchesSearch = userName.toLowerCase().includes(searchTerm.toLowerCase()) || 
                            app.statementOfIntent?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter ? app.status === statusFilter : true;
       return matchesSearch && matchesStatus;
@@ -161,6 +172,7 @@ export const AllApplications = () => {
         >
           <option value="">All_Statuses</option>
           <option value="pending">Pending</option>
+          <option value="under_review">Under Review</option>
           <option value="approved">Approved</option>
           <option value="rejected">Rejected</option>
         </select>
@@ -193,8 +205,12 @@ export const AllApplications = () => {
                 )}
               </div>
               <div>
-                <h3 className="text-sm font-black text-white uppercase tracking-tight line-clamp-1">{app.userId}</h3>
-                <p className="text-[10px] font-mono text-indigo-500 uppercase">{app.requiredPoints} POINTS_RECORDED</p>
+                <h3 className="text-sm font-black text-white uppercase tracking-tight line-clamp-1">
+                  {app.user?.fullName || app.userId}
+                </h3>
+                <p className="text-[10px] font-mono text-indigo-500 uppercase">
+                  {app.user?.participationPoints || 0} POINTS_RECORDED
+                </p>
               </div>
             </div>
 
@@ -253,11 +269,17 @@ export const AllApplications = () => {
             <div className="p-8 flex-1 overflow-y-auto space-y-8">
               {/* CANDIDATE BIO */}
               <div className="flex items-start gap-6 bg-slate-900/40 p-6 rounded-[2rem] border border-slate-800">
-                <img src={viewingApp?.imageUrl} className="w-20 h-20 rounded-2xl object-cover border border-slate-700" alt="" />
+                <div className="w-20 h-20 rounded-2xl bg-slate-800 border border-slate-700 overflow-hidden">
+                   {viewingApp?.imageUrl ? (
+                     <img src={viewingApp.imageUrl} className="w-full h-full object-cover" alt="" />
+                   ) : (
+                     <User className="w-full h-full p-4 text-slate-600" />
+                   )}
+                </div>
                 <div className="space-y-1">
-                  <h4 className="text-white font-black uppercase text-lg">{viewingApp?.userId}</h4>
-                  <p className="text-[10px] font-mono text-indigo-400">STATUS: {viewingApp?.status}</p>
-                  <p className="text-[10px] font-mono text-slate-500">POINTS: {viewingApp?.requiredPoints}</p>
+                  <h4 className="text-white font-black uppercase text-lg">{viewingApp?.user?.fullName || viewingApp?.userId}</h4>
+                  <p className="text-[10px] font-mono text-indigo-400 uppercase">STATUS: {viewingApp?.status}</p>
+                  <p className="text-[10px] font-mono text-slate-500 uppercase">POINTS: {viewingApp?.user?.participationPoints || 0}</p>
                 </div>
               </div>
 
@@ -278,11 +300,11 @@ export const AllApplications = () => {
               </div>
 
               {/* REVIEW FORM */}
-              <div className="space-y-6 pt-6 border-t border-slate-800">
+              <form onSubmit={handleReviewSubmit} className="space-y-6 pt-6 border-t border-slate-800">
                 <div className="space-y-2">
                   <label className="text-[10px] font-mono text-slate-500 uppercase ml-1">Phase_Decision</label>
                   <div className="grid grid-cols-2 gap-2">
-                    {['approved', 'rejected'].map(s => (
+                    {(['approved', 'rejected'] as const).map(s => (
                       <button 
                         key={s} type="button" onClick={() => setReviewData({...reviewData, status: s})}
                         className={`py-3 rounded-xl text-[10px] font-black uppercase border transition-all ${reviewData.status === s ? (s === 'approved' ? 'bg-emerald-600 border-emerald-600 text-white' : 'bg-rose-600 border-rose-600 text-white') : 'bg-slate-950 border-slate-800 text-slate-600'}`}
@@ -296,23 +318,23 @@ export const AllApplications = () => {
                 <div className="space-y-2">
                   <label className="text-[10px] font-mono text-slate-500 uppercase ml-1">Admin_Remarks</label>
                   <textarea 
-                    rows={4} value={reviewData.adminRemarks} onChange={(e) => setReviewData({...reviewData, adminRemarks: e.target.value})}
+                    rows={4} 
+                    required
+                    value={reviewData.adminRemarks} 
+                    onChange={(e) => setReviewData({...reviewData, adminRemarks: e.target.value})}
                     className="w-full bg-slate-950 border border-slate-800 rounded-2xl py-4 px-5 text-sm font-mono focus:border-indigo-600 outline-none resize-none" 
                     placeholder="Provide reasoning for decision..."
                   />
                 </div>
-              </div>
-            </div>
-
-            <div className="p-8 border-t border-slate-800 bg-slate-900/20">
-              <button 
-                disabled={isReviewing}
-                onClick={handleReviewSubmit}
-                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-3 transition-all"
-              >
-                {isReviewing ? <Loader2 className="animate-spin" size={16} /> : <Zap size={16} />}
-                Execute_Decision
-              </button>
+                <button 
+                  type="submit"
+                  disabled={isReviewing}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-600/20 flex items-center justify-center gap-3 transition-all"
+                >
+                  {isReviewing ? <Loader2 className="animate-spin" size={16} /> : <Zap size={16} />}
+                  Execute_Decision
+                </button>
+              </form>
             </div>
           </div>
         </div>

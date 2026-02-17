@@ -17,6 +17,7 @@ import { AllPositions } from './DashBoards/AdminDashBoard/AllPositions';
 import { AllApplications as AdminAllApplications } from './DashBoards/AdminDashBoard/AllApplications';
 import { AllCandidates } from './DashBoards/AdminDashBoard/AllCandidates';
 import { AllUsers } from './DashBoards/AdminDashBoard/AllUsers';
+import AccountCreationPage from './DashBoards/AdminDashBoard/AccountCreation';
 
 // User Dashboard
 import { UserLayout } from './DashBoards/DashBoardDesign/UserLayout';
@@ -115,6 +116,7 @@ function App() {
         { path: 'Manage-Applications', element: <AdminAllApplications /> },
         { path: 'Manage-Candidates', element: <AllCandidates /> },
         { path: 'Manage-Users', element: <AllUsers /> },
+        { path: 'create-accounts', element: <AccountCreationPage /> },
       ]
     },
 

@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-// Types for the Voting API
+// --- TYPES FOR THE VOTING API ---
+
 export interface VoteSelection {
   positionId: string;
   candidateId: string;
@@ -17,19 +18,26 @@ export interface BulkBallotRequest {
   selections: VoteSelection[];
 }
 
+/**
+ * UPDATED: Matches the backend Controller response exactly.
+ * Handles both Single (verificationReceipt) and Bulk (receipts array) responses.
+ */
 export interface VoteReceiptResponse {
+  success: boolean;
   message: string;
-  receipt: string;
-  votedAt: string;
+  verificationReceipt?: string; // For single votes
+  receipts?: string[];         // For bulk votes
+  castAt?: string;             // Sent from backend
 }
 
 export interface ResultEntry {
-  candidateId: string;
+  id: string;
   fullName: string;
-  tally: number | string; 
-  imageUrl?: string;
-  voteCount: number;
-  percentage: number;
+  ballotNumber: string;
+  role: string;
+  tally: number;
+  percentage: string;
+  receipts: string[];
 }
 
 export const votesApi = createApi({
@@ -37,7 +45,6 @@ export const votesApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "http://localhost:5000/api/votes",
     prepareHeaders: (headers, { getState }) => {
-      // Pull token from your auth state (adjust path based on your store config)
       const token = (getState() as any).auth?.token;
       if (token) {
         headers.set("authorization", `Bearer ${token}`);
@@ -69,7 +76,7 @@ export const votesApi = createApi({
     }),
 
     // 3. VERIFY VOTE VIA RECEIPT
-    verifyVoteReceipt: builder.mutation<{ valid: boolean; data: any }, { receipt: string }>({
+    verifyVoteReceipt: builder.mutation<any, { receipt: string }>({
       query: (body) => ({
         url: "/verify",
         method: "POST",
@@ -77,9 +84,14 @@ export const votesApi = createApi({
       }),
     }),
 
-    // 4. GET MY VOTING PROGRESS (Positions already voted for)
+    /**
+     * 4. GET MY VOTING PROGRESS
+     * Backend returns: { votedPositionIds: string[] }
+     */
     getVotingProgress: builder.query<string[], string>({
       query: (electionId) => `/progress/${electionId}`,
+      // Transform response so the component receives just the array
+      transformResponse: (response: { votedPositionIds: string[] }) => response.votedPositionIds,
       providesTags: ["VoteProgress"],
     }),
 
@@ -89,18 +101,18 @@ export const votesApi = createApi({
       providesTags: (result, error, id) => [{ type: "Results", id }],
     }),
 
-    // 6. GET FULL ELECTION ANALYTICS (Admin)
+    // 6. GET FULL ELECTION ANALYTICS
     getElectionAnalytics: builder.query<any, string>({
       query: (electionId) => `/analytics/election/${electionId}`,
       providesTags: ["Analytics"],
     }),
 
-    // 7. GET CANDIDATE PERFORMANCE SCORECARD (Admin)
+    // 7. GET CANDIDATE PERFORMANCE SCORECARD
     getCandidateScorecard: builder.query<any, string>({
       query: (candidateId) => `/analytics/candidate/${candidateId}`,
     }),
 
-    // 8. OFFICIAL ELECTION WINNERS (Admin)
+    // 8. OFFICIAL ELECTION WINNERS
     getElectionWinners: builder.query<any, string>({
       query: (electionId) => `/winners/${electionId}`,
     }),

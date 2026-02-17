@@ -12,6 +12,9 @@ export interface Candidate {
   electionId: string;
   isDisqualified: boolean;
   disqualificationReason?: string;
+  // Included fields for UI details
+  userId: string;
+  applicationId: string;
 }
 
 interface CandidatesResponse {
@@ -73,31 +76,41 @@ export const candidateApi = createApi({
     // --- VOTER / GENERAL OPERATIONS ---
 
     /**
-     * Fetch Entire Club Ballot (All candidates in an election)
-     * GET /candidates/election/:electionId
+     * Fetch Entire Club Ballot
+     * FIXED: Added safety checks to prevent .map() crash
      */
     getCandidatesByElection: builder.query<CandidatesResponse, string>({
       query: (electionId) => `candidates/election/${electionId}`,
-      providesTags: ["Candidates"],
+      providesTags: (result) => 
+        result?.candidates 
+          ? [
+              ...result.candidates.map(({ id }) => ({ type: 'Candidates' as const, id })), 
+              { type: 'Candidates', id: 'LIST' }
+            ]
+          : [{ type: 'Candidates', id: 'LIST' }],
     }),
 
     /**
      * Fetch Ballot by Specific Position
-     * GET /candidates/election/:electionId/position/:positionId
      */
     getCandidatesByPosition: builder.query<CandidatesResponse, { electionId: string; positionId: string }>({
       query: ({ electionId, positionId }) => 
         `candidates/election/${electionId}/position/${positionId}`,
-      providesTags: ["Candidates"],
+      providesTags: (result) => 
+        result?.candidates 
+          ? [
+              ...result.candidates.map(({ id }) => ({ type: 'Candidates' as const, id })), 
+              { type: 'Candidates', id: 'POSITION_LIST' }
+            ]
+          : [{ type: 'Candidates', id: 'POSITION_LIST' }],
     }),
 
     /**
      * View Candidate Detailed Profile
-     * GET /candidates/:candidateId
      */
     getCandidateById: builder.query<SingleCandidateResponse, string>({
       query: (id) => `candidates/${id}`,
-      providesTags: ["Candidates"],
+      providesTags: (result, error, id) => [{ type: "Candidates", id }],
     }),
   }),
 });
