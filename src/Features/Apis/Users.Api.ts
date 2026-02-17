@@ -6,7 +6,7 @@ export interface UserProfile {
   studentRegNo: string;
   email: string;
   fullName: string;
-  role: 'admin' | 'member' | 'voter'; // Updated to include voter role
+  role: 'admin' | 'member' | 'voter';
   yearOfStudy: string;
   participationPoints: number;
   isGoodStanding: boolean;
@@ -42,13 +42,11 @@ export interface UpdateProfileRequest {
   yearOfStudy?: string | number;
 }
 
-// NEW: Role Update Interface
 export interface RoleUpdateRequest {
   userId: string;
   role: 'admin' | 'member' | 'voter';
 }
 
-// NEW: Admin Update Interface (Includes password and sensitive fields)
 export interface AdminUpdateUserRequest extends UpdateProfileRequest {
   userId: string;
   studentRegNo?: string;
@@ -61,10 +59,24 @@ export const userApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "http://localhost:5000/api/users/",
     prepareHeaders: (headers, { getState }) => {
-      let token = (getState() as any).auth.token || localStorage.getItem("token");
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
+      const state = getState() as any;
+      
+      // 1. Prioritize token from Redux state, fallback to localStorage
+      let token = state.auth?.token || localStorage.getItem("token");
+
+      // 2. Validate token is a real string and not "null"/"undefined" from storage
+      if (token && token !== "null" && token !== "undefined") {
+        
+        // 3. THE FIX: Remove all double quotes. 
+        // If stored as "eyJ...", we must send eyJ... or the backend fails.
+        const cleanToken = token.replace(/"/g, "");
+        
+        headers.set("Authorization", `Bearer ${cleanToken}`);
+        
+        // Optional: log to verify the format is correct during development
+        // console.log("Sending Header:", `Bearer ${cleanToken.substring(0, 10)}...`);
       }
+      
       headers.set("Content-Type", "application/json");
       return headers;
     },
@@ -72,6 +84,7 @@ export const userApi = createApi({
   tagTypes: ["User", "Profile"],
   endpoints: (builder) => ({
     
+    // Auth Recovery
     requestUnlock: builder.mutation<{ message: string }, { email: string }>({
       query: (payload) => ({
         url: "request-unlock",
@@ -97,6 +110,7 @@ export const userApi = createApi({
       invalidatesTags: ["Profile"],
     }),
 
+    // Get current logged in user (GET /api/users/me)
     getMe: builder.query<UserProfile, void>({
       query: () => ({
         url: "me",
@@ -105,6 +119,7 @@ export const userApi = createApi({
       providesTags: ["Profile"],
     }),
 
+    // Update profile (PUT /api/users/update-profile)
     updateProfile: builder.mutation<{ message: string; user: UserProfile }, UpdateProfileRequest>({
       query: (payload) => ({
         url: "update-profile",
@@ -114,7 +129,7 @@ export const userApi = createApi({
       invalidatesTags: ["Profile"],
     }),
 
-    // --- NEW: Admin Full Update ---
+    // Admin: Full Update
     adminUpdateUser: builder.mutation<{ message: string; user: UserProfile }, AdminUpdateUserRequest>({
       query: ({ userId, ...payload }) => ({
         url: `admin-update/${userId}`,
@@ -128,7 +143,7 @@ export const userApi = createApi({
       ],
     }),
 
-    // --- NEW: Admin Role Management ---
+    // Admin: Role Management
     changeUserRole: builder.mutation<{ message: string; user: UserProfile }, RoleUpdateRequest>({
       query: ({ userId, role }) => ({
         url: `role/${userId}`,
@@ -142,7 +157,7 @@ export const userApi = createApi({
       ],
     }),
 
-    // --- NEW: Delete User Account ---
+    // Delete Account
     deleteUser: builder.mutation<{ message: string; id: string }, string>({
       query: (userId) => ({
         url: `${userId}`,
@@ -151,6 +166,7 @@ export const userApi = createApi({
       invalidatesTags: ["User", "Profile"],
     }),
 
+    // Check Voter Eligibility
     checkEligibility: builder.query<EligibilityResponse, { userId: string; requiredPoints: number }>({
       query: ({ userId, requiredPoints }) => ({
         url: `eligible/${userId}?requiredPoints=${requiredPoints}`,
@@ -158,6 +174,7 @@ export const userApi = createApi({
       }),
     }),
 
+    // Admin: List all users
     getAllUsers: builder.query<PaginatedUsers, { limit: number; offset: number }>({
       query: ({ limit, offset }) => ({
         url: `?limit=${limit}&offset=${offset}`,
@@ -172,6 +189,7 @@ export const userApi = createApi({
           : [{ type: "User", id: "LIST" }],
     }),
 
+    // Admin: Status updates
     updateUserStatus: builder.mutation<UserProfile, StatusUpdateRequest>({
       query: ({ userId, ...payload }) => ({
         url: `status/${userId}`,
@@ -184,6 +202,7 @@ export const userApi = createApi({
       ],
     }),
 
+    // Admin: Participation Points
     managePoints: builder.mutation<UserProfile, PointsUpdateRequest>({
       query: ({ userId, points }) => ({
         url: `points/${userId}`,
@@ -205,7 +224,7 @@ export const {
   useGetMeQuery,
   useUpdateProfileMutation,
   useAdminUpdateUserMutation,
-  useChangeUserRoleMutation, // Exported for role management
+  useChangeUserRoleMutation,
   useDeleteUserMutation,
   useCheckEligibilityQuery,
   useGetAllUsersQuery,

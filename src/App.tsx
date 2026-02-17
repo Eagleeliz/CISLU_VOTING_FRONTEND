@@ -6,7 +6,6 @@ import './App.css';
 // Public Pages
 import LandingPage from "./pages/LandingPage";
 import LogIn from "./pages/LogIn";
-// Ensure this path matches where you saved the updated CompleteProfile file
 import CompleteProfile from "./DashBoards/UserDashboard/CompleteProfile"; 
 import Error from './pages/Error';
 import ProtectedRoutes from './components/ProtectedRoutes';
@@ -17,10 +16,7 @@ import { AllElections } from './DashBoards/AdminDashBoard/AllElections';
 import { AllPositions } from './DashBoards/AdminDashBoard/AllPositions';
 import { AllApplications as AdminAllApplications } from './DashBoards/AdminDashBoard/AllApplications';
 import { AllCandidates } from './DashBoards/AdminDashBoard/AllCandidates';
-import CandidatesPage from './pages/Candidates';
-import CandidateProfileView from './pages/ProfileVeiw';
-import VotingPage from './pages/Vote';
-import ResultsPage from './pages/Results';
+import { AllUsers } from './DashBoards/AdminDashBoard/AllUsers';
 
 // User Dashboard
 import { UserLayout } from './DashBoards/DashBoardDesign/UserLayout';
@@ -29,12 +25,18 @@ import ApplicationPage from './DashBoards/UserDashboard/ApplicationPage';
 import ProfilePage from './DashBoards/UserDashboard/ProfilePage';
 import Results from './DashBoards/UserDashboard/Results';
 
+// Other Pages
 import AboutPage from './pages/About';
-import { AllUsers } from './DashBoards/AdminDashBoard/AllUsers';
+import CandidatesPage from './pages/Candidates';
+import CandidateProfileView from './pages/ProfileVeiw';
+import VotingPage from './pages/Vote';
+import ResultsPage from './pages/Results';
 
 function App() {
   const Router = createBrowserRouter([
-    // Public Routes
+    // -------------------------------
+    // 1. PUBLIC ROUTES
+    // -------------------------------
     {
       path: '/',
       element: <LandingPage />,
@@ -46,32 +48,24 @@ function App() {
       errorElement: <Error />,
     },
     {
-      path: '/voting',
-      element: <VotingPage />,
+      path: '/about',
+      element: <AboutPage />,
       errorElement: <Error />,
     },
     {
-      path: '/results',
-      element: <ResultsPage />,
+      path: '/Candidates',
+      element: <CandidatesPage />,
       errorElement: <Error />,
-    },
-    {
-       path: '/Candidates',
-       element: <CandidatesPage />,
-       errorElement: <Error />,
     },
     {
       path: '/Candidates/profile/:applicationId',
       element: <CandidateProfileView />,
       errorElement: <Error />,
     },
-    {
-       path: '/about',
-       element: <AboutPage />,
-       errorElement: <Error />,
-    },
 
-    // PROFILE COMPLETION (Now Protected)
+    // -------------------------------
+    // 2. PROFILE COMPLETION (Protected)
+    // -------------------------------
     {
       path: '/complete-profile',
       element: (
@@ -82,7 +76,9 @@ function App() {
       errorElement: <Error />,
     },
 
-    // USER DASHBOARD ROUTES (Protected)
+    // -------------------------------
+    // 3. USER DASHBOARD (Protected)
+    // -------------------------------
     {
       path: '/dashboard',
       element: (
@@ -101,7 +97,9 @@ function App() {
       ]
     },
 
-    // ADMIN DASHBOARD ROUTES (Protected)
+    // -------------------------------
+    // 4. ADMIN DASHBOARD (Protected)
+    // -------------------------------
     {
       path: '/AdminDashBoard',
       element: (
@@ -120,16 +118,30 @@ function App() {
       ]
     },
 
-    // Redirects & Catch-all
+    // -------------------------------
+    // 5. VOTING & RESULTS (Public or Protected depending on your need)
+    // -------------------------------
+    {
+      path: '/voting',
+      element: <VotingPage />,
+      errorElement: <Error />,
+    },
+    {
+      path: '/results',
+      element: <ResultsPage />,
+      errorElement: <Error />,
+    },
+
+    // -------------------------------
+    // 6. REDIRECTS & CATCH-ALL
+    // -------------------------------
     {
       path: '/applications',
       element: <Navigate to="/dashboard/applications" replace />,
-      errorElement: <Error />,
     },
     {
       path: '*',
       element: <Navigate to="/" replace />,
-      errorElement: <Error />,
     }
   ]);
 
