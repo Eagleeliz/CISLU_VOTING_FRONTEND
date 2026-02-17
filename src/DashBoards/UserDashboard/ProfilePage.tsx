@@ -6,7 +6,7 @@ import {
 
 import Navbar from "../../components/Navbar";
 
-import  {
+import {
   User,
   Mail,
   ShieldCheck,
@@ -16,16 +16,14 @@ import  {
   XCircle,
   Loader2,
   Calendar,
+  type LucideIcon,
 } from "lucide-react";
 
-import type  {
-  LucideIcon,
-} from "lucide-react";
 /* -------------------------------
    INFO BLOCK TYPES
 -------------------------------- */
 type InfoBlockProps = {
-  icon: LucideIcon; // ✅ Correct icon type
+  icon: LucideIcon;
   label: string;
   value?: string;
   highlight?: boolean;
@@ -42,20 +40,20 @@ const InfoBlock = ({
 }: InfoBlockProps) => (
   <div className="group">
     <div className="flex items-center gap-2 mb-2">
-      {/* ✅ Correct icon rendering */}
       <Icon
-        size={16}
-        className="text-slate-300 group-hover:text-red-500 transition-colors"
+        size={18}
+        className={`group-hover:text-red-500 transition-colors ${
+          highlight ? "text-red-600" : "text-white"
+        }`}
       />
-
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+      <p className="text-[10px] font-black text-white/70 uppercase tracking-widest">
         {label}
       </p>
     </div>
 
     <p
       className={`text-xl font-bold tracking-tight ${
-        highlight ? "text-red-600 uppercase" : "text-slate-900"
+        highlight ? "text-red-600 uppercase" : "text-white"
       }`}
     >
       {value || "---"}
@@ -67,55 +65,40 @@ const InfoBlock = ({
    PROFILE PAGE
 -------------------------------- */
 const ProfilePage = () => {
-  // 1️⃣ Fetch main profile data
   const {
     data: user,
     isLoading: profileLoading,
     isFetching: profileFetching,
     error: profileError,
-  } = useGetMeQuery(undefined, {
-    refetchOnMountOrArgChange: true,
-  });
+  } = useGetMeQuery(undefined, { refetchOnMountOrArgChange: true });
 
-  // 2️⃣ Debug logs
-  React.useEffect(() => {
-    console.log("--- Profile Page Sync ---");
-    console.log("Loading:", profileLoading, "Fetching:", profileFetching);
-    console.log("Error:", profileError);
-    console.log("User Data:", user);
-  }, [profileLoading, profileFetching, profileError, user]);
-
-  // 3️⃣ Fetch Eligibility (skip if user not loaded yet)
   const { data: eligibility, isLoading: eligibilityLoading } =
     useCheckEligibilityQuery(
       {
         userId: user?.id || "",
         requiredPoints: 10,
       },
-      {
-        skip: !user?.id,
-      }
+      { skip: !user?.id }
     );
 
-  // 4️⃣ Handle Errors
+  /* -------------------------------
+     ERROR STATE
+  -------------------------------- */
   if (profileError) {
     const errMsg =
       (profileError as any)?.data?.error ||
       "Session expired. Please login again.";
 
     return (
-      <div className="h-screen flex flex-col items-center justify-center bg-[#FBFBFE] p-6">
+      <div className="h-screen flex flex-col items-center justify-center bg-[#07090d] p-6">
         <XCircle className="text-red-600 mb-4" size={48} />
-
-        <h2 className="text-2xl font-black uppercase tracking-tighter">
+        <h2 className="text-2xl font-black uppercase tracking-tighter text-white">
           Access Denied
         </h2>
-
-        <p className="text-slate-500 mb-6 text-center max-w-md">{errMsg}</p>
-
+        <p className="text-white/70 mb-6 text-center max-w-md">{errMsg}</p>
         <button
           onClick={() => (window.location.href = "/login")}
-          className="bg-slate-900 text-white px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-red-600 transition-all"
+          className="bg-red-600 text-white px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-red-500 transition-all"
         >
           Back to Login
         </button>
@@ -123,21 +106,25 @@ const ProfilePage = () => {
     );
   }
 
-  // 5️⃣ Loading State
-  if (profileLoading) {
+  /* -------------------------------
+     LOADING STATE
+  -------------------------------- */
+  if (profileLoading || profileFetching || eligibilityLoading) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center bg-[#FBFBFE]">
+      <div className="h-screen flex flex-col items-center justify-center bg-[#07090d]">
         <Loader2 className="animate-spin text-red-600 mb-4" size={40} />
-
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/70">
           Syncing Profile...
         </p>
       </div>
     );
   }
 
+  /* -------------------------------
+     MAIN PAGE
+  -------------------------------- */
   return (
-    <div className="min-h-screen bg-[#FBFBFE]">
+    <div className="min-h-screen bg-[#07090d]">
       <Navbar />
 
       <main className="max-w-5xl mx-auto pt-32 px-6 pb-24">
@@ -148,16 +135,15 @@ const ProfilePage = () => {
               Member Portal
             </p>
 
-            <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase leading-none">
+            <h1 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">
               {user?.fullName?.split(" ")[0] || "User"}
               's <span className="text-red-600">Profile.</span>
             </h1>
           </div>
 
-          <div className="bg-white border border-slate-100 px-6 py-3 rounded-2xl shadow-sm flex items-center gap-3">
-            <Calendar className="text-slate-400" size={18} />
-
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+          <div className="bg-[#0b0e14] border border-slate-800 px-6 py-3 rounded-2xl shadow-sm flex items-center gap-3">
+            <Calendar className="text-red-600" size={18} />
+            <span className="text-xs font-bold text-red-400 uppercase tracking-wider">
               Joined{" "}
               {user?.createdAt
                 ? new Date(user.createdAt).toLocaleDateString()
@@ -170,11 +156,13 @@ const ProfilePage = () => {
           {/* LEFT */}
           <div className="lg:col-span-4 space-y-6">
             {/* Points */}
-            <div className="bg-indigo-950 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl shadow-indigo-950/30">
-              <Award className="absolute -right-6 -bottom-6 text-white/10" size={180} />
-
+            <div className="bg-[#0b0e14] rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl shadow-black/30">
+              <Award
+                className="absolute -right-6 -bottom-6 text-white/10"
+                size={180}
+              />
               <div className="relative z-10">
-                <p className="text-indigo-300 text-[10px] font-black uppercase tracking-widest mb-2">
+                <p className="text-red-600 text-[10px] font-black uppercase tracking-widest mb-2">
                   Participation Score
                 </p>
 
@@ -184,22 +172,22 @@ const ProfilePage = () => {
 
                 <div className="h-1 w-12 bg-red-600 mb-4" />
 
-                <p className="text-xs font-medium text-indigo-200 leading-relaxed">
+                <p className="text-xs font-medium text-red-300 leading-relaxed">
                   Earn points by attending meetings and verifying your activity.
                 </p>
               </div>
             </div>
 
             {/* Eligibility */}
-            <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">
+            <div className="bg-[#0b0e14] rounded-[2.5rem] p-8 border border-slate-800 shadow-sm text-white">
+              <p className="text-[10px] font-black uppercase tracking-widest mb-6">
                 Voting Eligibility
               </p>
 
               {eligibilityLoading ? (
                 <div className="flex items-center gap-2">
-                  <Loader2 className="animate-spin text-slate-300" size={16} />
-                  <span className="text-[10px] font-bold text-slate-400 uppercase">
+                  <Loader2 className="animate-spin text-red-600" size={16} />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
                     Checking...
                   </span>
                 </div>
@@ -211,15 +199,13 @@ const ProfilePage = () => {
                     ) : (
                       <XCircle className="text-red-500" size={32} />
                     )}
-
                     <div>
-                      <p className="font-black text-slate-900 uppercase text-sm leading-none">
+                      <p className="font-black uppercase text-sm leading-none text-white">
                         {eligibility?.eligible
                           ? "Eligible to Run"
                           : "Not Eligible"}
                       </p>
-
-                      <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">
+                      <p className="text-[10px] font-bold mt-1 uppercase text-white/70">
                         {eligibility?.eligible
                           ? "Requirement Met"
                           : eligibility?.reason || "Points below threshold"}
@@ -227,7 +213,7 @@ const ProfilePage = () => {
                     </div>
                   </div>
 
-                  <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden mt-4">
+                  <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden mt-4">
                     <div
                       className="bg-red-600 h-full transition-all duration-1000"
                       style={{
@@ -245,18 +231,26 @@ const ProfilePage = () => {
 
           {/* RIGHT */}
           <div className="lg:col-span-8">
-            <div className="bg-white rounded-[2.5rem] p-10 border border-slate-100 shadow-sm h-full">
+            <div className="bg-[#0b0e14] rounded-[2.5rem] p-10 border border-slate-800 shadow-sm h-full text-white">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-y-10 gap-x-12">
-                {/* ✅ FIXED ICON USAGE */}
                 <InfoBlock icon={User} label="Full Name" value={user?.fullName} />
-                <InfoBlock icon={ShieldCheck} label="Reg Number" value={user?.studentRegNo} />
+                <InfoBlock
+                  icon={ShieldCheck}
+                  label="Reg Number"
+                  value={user?.studentRegNo}
+                />
                 <InfoBlock icon={Mail} label="Email" value={user?.email} />
                 <InfoBlock
                   icon={GraduationCap}
                   label="Academic Year"
                   value={user?.yearOfStudy ? `Year ${user.yearOfStudy}` : "N/A"}
                 />
-                <InfoBlock icon={Award} label="Current Role" value={user?.role} highlight />
+                <InfoBlock
+                  icon={Award}
+                  label="Current Role"
+                  value={user?.role}
+                  highlight
+                />
                 <InfoBlock
                   icon={CheckCircle2}
                   label="Standing"
@@ -264,13 +258,12 @@ const ProfilePage = () => {
                 />
               </div>
 
-              <div className="mt-16 pt-8 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-4">
-                <p className="text-[10px] font-bold text-slate-400 uppercase max-w-xs text-center md:text-left">
-                  Account verified. Security status:{" "}
-                  {user?.isLocked ? "LOCKED" : "SECURE"}
+              <div className="mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p className="text-[10px] font-bold uppercase max-w-xs text-center md:text-left text-blue-500">
+                  Account verified. Security status: {user?.isLocked ? "LOCKED" : "SECURE"}
                 </p>
 
-                <button className="bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.2em] px-8 py-4 rounded-2xl hover:bg-red-600 transition-all active:scale-95 shadow-lg">
+                <button className="bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] px-8 py-4 rounded-2xl hover:bg-red-500 transition-all active:scale-95 shadow-lg">
                   Request Data Update
                 </button>
               </div>
