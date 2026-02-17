@@ -29,8 +29,9 @@ const CompleteProfile = () => {
         ...prev,
         studentRegNo: user.studentRegNo || "",
         email: user.email || "",
-        fullName: user.fullName || "",
-        yearOfStudy: user.yearOfStudy ? String(user.yearOfStudy) : "",
+        // Name and Year are left blank so the user must type them manually
+        fullName: "", 
+        yearOfStudy: "",
       }));
     }
   }, [user]);
@@ -38,13 +39,18 @@ const CompleteProfile = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validation: Ensure they didn't just type their Reg No as their name
+    if (formData.fullName.trim().toUpperCase() === formData.studentRegNo.toUpperCase()) {
+      toast.error("Please enter your actual name, not your Registration Number.");
+      return;
+    }
+
     if (formData.fullName.trim().length < 3) {
       toast.error("Full name must be at least 3 characters");
       return;
     }
 
     try {
-      // Constructing payload for the updated Auth.APi
       const payload = {
         studentRegNo: formData.studentRegNo,
         fullName: formData.fullName.trim(),
@@ -54,11 +60,16 @@ const CompleteProfile = () => {
 
       const result = await saveProfile(payload).unwrap();
 
-      dispatch(updateUserData(result.user));
+      // Update Redux and explicitly clear the completion flag
+      dispatch(updateUserData({
+        ...result.user,
+        requireProfileCompletion: false 
+      }));
+
       dispatch(completeProfile());
 
       toast.success("Profile saved successfully!");
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
 
     } catch (error: any) {
       console.error("Submission Error:", error);
@@ -112,8 +123,9 @@ const CompleteProfile = () => {
                   <input
                     type="text"
                     required
+                    placeholder="Enter your full name"
                     value={formData.fullName}
-                    className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl focus:border-red-500 outline-none font-bold text-black shadow-sm"
+                    className="w-full pl-12 pr-4 py-4 bg-white border-2 border-slate-100 rounded-2xl focus:border-red-500 outline-none font-bold text-black shadow-sm placeholder:text-slate-300 placeholder:font-normal"
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                   />
                 </div>
