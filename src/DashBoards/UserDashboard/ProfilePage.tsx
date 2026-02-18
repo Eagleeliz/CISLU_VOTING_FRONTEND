@@ -1,271 +1,133 @@
-import * as React from "react";
-import {
-  useGetMeQuery,
-  useCheckEligibilityQuery,
-} from "../../Features/Apis/Users.Api";
-
+import React, { useState, useEffect } from "react";
+import { useGetMeQuery, useUpdateProfileMutation } from "../../Features/Apis/Users.Api";
+import { toast } from "react-hot-toast";
 import Navbar from "../../components/Navbar";
+import { User, ShieldCheck, Mail, GraduationCap, Award, Loader2, Edit3, Save } from 'lucide-react';
 
-import {
-  User,
-  Mail,
-  ShieldCheck,
-  GraduationCap,
-  Award,
-  CheckCircle2,
-  XCircle,
-  Loader2,
-  Calendar,
-  type LucideIcon,
-} from "lucide-react";
-
-/* -------------------------------
-   INFO BLOCK TYPES
--------------------------------- */
-type InfoBlockProps = {
-  icon: LucideIcon;
-  label: string;
-  value?: string;
-  highlight?: boolean;
-};
-
-/* -------------------------------
-   INFO BLOCK COMPONENT
--------------------------------- */
-const InfoBlock = ({
-  icon: Icon,
-  label,
-  value,
-  highlight = false,
-}: InfoBlockProps) => (
-  <div className="group">
-    <div className="flex items-center gap-2 mb-2">
-      <Icon
-        size={18}
-        className={`group-hover:text-red-500 transition-colors ${
-          highlight ? "text-red-600" : "text-white"
-        }`}
-      />
-      <p className="text-[10px] font-black text-white/70 uppercase tracking-widest">
-        {label}
-      </p>
-    </div>
-
-    <p
-      className={`text-xl font-bold tracking-tight ${
-        highlight ? "text-red-600 uppercase" : "text-white"
-      }`}
-    >
-      {value || "---"}
-    </p>
-  </div>
-);
-
-/* -------------------------------
-   PROFILE PAGE
--------------------------------- */
 const ProfilePage = () => {
-  const {
-    data: user,
-    isLoading: profileLoading,
-    isFetching: profileFetching,
-    error: profileError,
-  } = useGetMeQuery(undefined, { refetchOnMountOrArgChange: true });
+  const { data: user, isLoading: profileLoading } = useGetMeQuery();
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
+  
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [formData, setFormData] = useState({ fullName: "", yearOfStudy: "" });
 
-  const { data: eligibility, isLoading: eligibilityLoading } =
-    useCheckEligibilityQuery(
-      {
-        userId: user?.id || "",
-        requiredPoints: 10,
-      },
-      { skip: !user?.id }
-    );
+  useEffect(() => {
+    if (user) {
+      setFormData({ 
+        fullName: user.fullName || "", 
+        yearOfStudy: user.yearOfStudy?.toString() || "1" 
+      });
+    }
+  }, [user]);
 
-  /* -------------------------------
-     ERROR STATE
-  -------------------------------- */
-  if (profileError) {
-    const errMsg =
-      (profileError as any)?.data?.error ||
-      "Session expired. Please login again.";
+  const handleSave = async () => {
+    try {
+      const payload = {
+        fullName: formData.fullName.trim(),
+        yearOfStudy: formData.yearOfStudy
+      };
+      await updateProfile(payload).unwrap();
+      toast.success("Identity Synchronized");
+      setIsEditMode(false);
+    } catch (err: any) {
+      console.error("Save Error:", err);
+      toast.error(err.data?.error || "UPLINK_FAILURE: Authorization Rejected");
+    }
+  };
 
-    return (
-      <div className="h-screen flex flex-col items-center justify-center bg-[#07090d] p-6">
-        <XCircle className="text-red-600 mb-4" size={48} />
-        <h2 className="text-2xl font-black uppercase tracking-tighter text-white">
-          Access Denied
-        </h2>
-        <p className="text-white/70 mb-6 text-center max-w-md">{errMsg}</p>
-        <button
-          onClick={() => (window.location.href = "/login")}
-          className="bg-red-600 text-white px-10 py-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-red-500 transition-all"
-        >
-          Back to Login
-        </button>
-      </div>
-    );
-  }
+  if (profileLoading) return (
+    <div className="h-screen flex items-center justify-center bg-[#07090d]">
+      <Loader2 className="animate-spin text-red-600" size={40} />
+    </div>
+  );
 
-  /* -------------------------------
-     LOADING STATE
-  -------------------------------- */
-  if (profileLoading || profileFetching || eligibilityLoading) {
-    return (
-      <div className="h-screen flex flex-col items-center justify-center bg-[#07090d]">
-        <Loader2 className="animate-spin text-red-600 mb-4" size={40} />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/70">
-          Syncing Profile...
-        </p>
-      </div>
-    );
-  }
-
-  /* -------------------------------
-     MAIN PAGE
-  -------------------------------- */
   return (
-    <div className="min-h-screen bg-[#07090d]">
+    <div className="min-h-screen bg-[#07090d] text-white overflow-x-hidden">
       <Navbar />
-
-      <main className="max-w-5xl mx-auto pt-32 px-6 pb-24">
-        {/* HEADER */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <p className="text-[10px] font-black text-red-600 uppercase tracking-[0.3em] mb-2">
-              Member Portal
-            </p>
-
-            <h1 className="text-5xl font-black text-white tracking-tighter uppercase leading-none">
-              {user?.fullName?.split(" ")[0] || "User"}
-              's <span className="text-red-600">Profile.</span>
+      
+      {/* 1. MAIN CONTAINER SIZE: Increase max-w-5xl to 6xl or 7xl to make the whole page wider */}
+      <main className="max-w-6xl mx-auto pt-24 md:pt-32 px-4 sm:px-6 pb-12">
+        
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
+          <div className="w-full">
+            <p className="text-[10px] font-black text-red-600 uppercase tracking-[0.3em] mb-2">Welcome Back</p>
+            <h1 className="text-[8vw] md:text-5xl lg:text-6xl font-black tracking-tighter  whitespace-nowrap leading-none">
+              {user?.fullName?.split(" ")[0] || "User"}<span className="text-red-600">.Profile</span>
             </h1>
           </div>
 
-          <div className="bg-[#0b0e14] border border-slate-800 px-6 py-3 rounded-2xl shadow-sm flex items-center gap-3">
-            <Calendar className="text-red-600" size={18} />
-            <span className="text-xs font-bold text-red-400 uppercase tracking-wider">
-              Joined{" "}
-              {user?.createdAt
-                ? new Date(user.createdAt).toLocaleDateString()
-                : "N/A"}
-            </span>
-          </div>
+          <button 
+            onClick={() => isEditMode ? handleSave() : setIsEditMode(true)}
+            disabled={isUpdating}
+            className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-xl md:rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 shadow-lg bg-red-600 hover:bg-red-500"
+          >
+            {isUpdating ? <Loader2 className="animate-spin" size={14} /> : isEditMode ? <Save size={14} /> : <Edit3 size={14} />}
+            {isEditMode ? "Apply Changes" : "Update Profile"}
+          </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* LEFT */}
-          <div className="lg:col-span-4 space-y-6">
-            {/* Points */}
-            <div className="bg-[#0b0e14] rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl shadow-black/30">
-              <Award
-                className="absolute -right-6 -bottom-6 text-white/10"
-                size={180}
-              />
-              <div className="relative z-10">
-                <p className="text-red-600 text-[10px] font-black uppercase tracking-widest mb-2">
-                  Participation Score
-                </p>
-
-                <h3 className="text-6xl font-black mb-1">
-                  {user?.participationPoints || 0}
-                </h3>
-
-                <div className="h-1 w-12 bg-red-600 mb-4" />
-
-                <p className="text-xs font-medium text-red-300 leading-relaxed">
-                  Earn points by attending meetings and verifying your activity.
-                </p>
-              </div>
-            </div>
-
-            {/* Eligibility */}
-            <div className="bg-[#0b0e14] rounded-[2.5rem] p-8 border border-slate-800 shadow-sm text-white">
-              <p className="text-[10px] font-black uppercase tracking-widest mb-6">
-                Voting Eligibility
-              </p>
-
-              {eligibilityLoading ? (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="animate-spin text-red-600" size={16} />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
-                    Checking...
-                  </span>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    {eligibility?.eligible ? (
-                      <CheckCircle2 className="text-green-500" size={32} />
-                    ) : (
-                      <XCircle className="text-red-500" size={32} />
-                    )}
-                    <div>
-                      <p className="font-black uppercase text-sm leading-none text-white">
-                        {eligibility?.eligible
-                          ? "Eligible to Run"
-                          : "Not Eligible"}
-                      </p>
-                      <p className="text-[10px] font-bold mt-1 uppercase text-white/70">
-                        {eligibility?.eligible
-                          ? "Requirement Met"
-                          : eligibility?.reason || "Points below threshold"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden mt-4">
-                    <div
-                      className="bg-red-600 h-full transition-all duration-1000"
-                      style={{
-                        width: `${Math.min(
-                          (user?.participationPoints || 0) * 10,
-                          100
-                        )}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
+        {/* 2. GRID GAP: Increase gap-8 to gap-12 to add more space between the two cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-12">
+          
+          {/* LEFT: Stats Card */}
+          <div className="lg:col-span-4">
+            {/* 3. CARD SIZE: Increase p-8 (padding) and add min-h-[value] to make this card larger */}
+            <div className="bg-gradient-to-b from-[#0b0e14] to-[#07090d] rounded-[2.5rem] p-14 min-h-[250px] border border-slate-800/50 relative overflow-hidden shadow-2xl flex flex-col justify-center transition-transform hover:scale-[1.02] duration-300">
+              <Award className="absolute -right-6 -bottom-6 text-white/[0.03]" size={150} />
+              <p className="text-red-600 text-[10px] font-black uppercase tracking-widest mb-2 relative z-10">Participation</p>
+              <h3 className="text-6xl md:text-8xl font-black relative z-10">{user?.participationPoints || 0}</h3>
+              <p className="text-white/40 text-[10px] mt-2 font-bold uppercase tracking-wider relative z-10">Points Earned</p>
             </div>
           </div>
 
-          {/* RIGHT */}
+          {/* RIGHT: Editable Info Card */}
           <div className="lg:col-span-8">
-            <div className="bg-[#0b0e14] rounded-[2.5rem] p-10 border border-slate-800 shadow-sm h-full text-white">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-10 gap-x-12">
-                <InfoBlock icon={User} label="Full Name" value={user?.fullName} />
-                <InfoBlock
-                  icon={ShieldCheck}
-                  label="Reg Number"
-                  value={user?.studentRegNo}
-                />
-                <InfoBlock icon={Mail} label="Email" value={user?.email} />
-                <InfoBlock
-                  icon={GraduationCap}
-                  label="Academic Year"
-                  value={user?.yearOfStudy ? `Year ${user.yearOfStudy}` : "N/A"}
-                />
-                <InfoBlock
-                  icon={Award}
-                  label="Current Role"
-                  value={user?.role}
-                  highlight
-                />
-                <InfoBlock
-                  icon={CheckCircle2}
-                  label="Standing"
-                  value={user?.isGoodStanding ? "Active" : "Under Review"}
-                />
-              </div>
+            {/* 4. CARD SIZE: Increase p-10 (padding) and add min-h-[value] to make this card larger */}
+            <div className="bg-[#0b0e14] rounded-[2.5rem] p-8 md:p-16 min-h-[400px] border border-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col justify-center">
+              {/* 5. VERTICAL SPACING: Increase gap-y-10 to gap-y-16 to make items spread out more */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-12 gap-x-12">
+                
+                <div className="space-y-2 group">
+                  <label className="text-[10px] font-black text-white/50 uppercase flex items-center gap-2 group-hover:text-red-600 transition-colors">
+                    <User size={14} className="text-red-600"/> Full Identity
+                  </label>
+                  {isEditMode ? (
+                    <input 
+                      className="w-full bg-[#07090d] border border-red-600/30 rounded-xl py-3 px-4 outline-none focus:border-red-600 text-white transition-all shadow-inner"
+                      value={formData.fullName}
+                      onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                    />
+                  ) : (
+                    <p className="text-xl md:text-2xl font-bold tracking-tight text-white/90">{user?.fullName || "Not Set"}</p>
+                  )}
+                </div>
 
-              <div className="mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
-                <p className="text-[10px] font-bold uppercase max-w-xs text-center md:text-left text-blue-500">
-                  Account verified. Security status: {user?.isLocked ? "LOCKED" : "SECURE"}
-                </p>
+                <div className="space-y-2 group">
+                  <label className="text-[10px] font-black text-white/50 uppercase flex items-center gap-2 group-hover:text-red-600 transition-colors">
+                    <GraduationCap size={14} className="text-red-600"/> Academic Year
+                  </label>
+                  {isEditMode ? (
+                    <select 
+                      className="w-full bg-[#07090d] border border-red-600/30 rounded-xl py-3 px-4 outline-none focus:border-red-600 text-white shadow-inner"
+                      value={formData.yearOfStudy}
+                      onChange={(e) => setFormData({...formData, yearOfStudy: e.target.value})}
+                    >
+                      {[1,2,3,4].map(y => <option key={y} value={y} className="bg-[#07090d]">Year {y}</option>)}
+                    </select>
+                  ) : (
+                    <p className="text-xl md:text-2xl font-bold text-white/90">Year {user?.yearOfStudy || "N/A"}</p>
+                  )}
+                </div>
 
-                <button className="bg-red-600 text-white text-[10px] font-black uppercase tracking-[0.2em] px-8 py-4 rounded-2xl hover:bg-red-500 transition-all active:scale-95 shadow-lg">
-                  Request Data Update
-                </button>
+                <div className="space-y-2 opacity-60">
+                  <label className="text-[10px] font-black uppercase flex items-center gap-2 tracking-wider"><ShieldCheck size={14}/> User ID (Reg No)</label>
+                  <p className="text-lg md:text-xl font-bold font-mono tracking-wide">{user?.studentRegNo}</p>
+                </div>
+
+                <div className="space-y-2 opacity-60">
+                  <label className="text-[10px] font-black uppercase flex items-center gap-2 tracking-wider"><Mail size={14}/> Email Account</label>
+                  <p className="text-lg md:text-xl font-bold break-all">{user?.email}</p>
+                </div>
               </div>
             </div>
           </div>

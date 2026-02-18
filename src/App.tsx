@@ -24,7 +24,7 @@ import { UserLayout } from './DashBoards/DashBoardDesign/UserLayout';
 import DashboardHome from './DashBoards/UserDashboard/DashboardHome';
 import ApplicationPage from './DashBoards/UserDashboard/ApplicationPage';  
 import ProfilePage from './DashBoards/UserDashboard/ProfilePage';
-import Results from './DashBoards/UserDashboard/Results';
+import Results from './DashBoards/UserDashboard/LiveResults';
 
 // Other Pages
 import AboutPage from './pages/About';
@@ -32,6 +32,7 @@ import CandidatesPage from './pages/Candidates';
 import CandidateProfileView from './pages/ProfileVeiw';
 import VotingPage from './pages/Vote';
 import ResultsPage from './pages/Results';
+import PasswordPage from './DashBoards/UserDashboard/PasswordPage';
 
 function App() {
   const Router = createBrowserRouter([
@@ -95,6 +96,7 @@ function App() {
         { path: 'applications/:id/edit', element: <ApplicationPage /> },
         { path: 'profile', element: <ProfilePage /> },
         { path: 'results', element: <Results /> },
+        { path: 'password', element: <PasswordPage/> },
       ]
     },
 

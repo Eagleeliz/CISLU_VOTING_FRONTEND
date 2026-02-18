@@ -16,6 +16,12 @@ export interface UserProfile {
   createdAt?: string;
 }
 
+// Updated to match Backend Zod Validator requirements
+export interface PasswordUpdateRequest {
+  currentPassword: string; // Required to verify identity via bcrypt
+  password: string;        // The new password to be hashed
+}
+
 export interface EligibilityResponse {
   eligible: boolean;
   reason?: string;
@@ -53,28 +59,23 @@ export interface AdminUpdateUserRequest extends UpdateProfileRequest {
   password?: string;
 }
 
+
 // -------------------- API --------------------
 export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/users/",
+    // Base URL points to /api/ to allow access to both auth and users routers
+    baseUrl: "http://localhost:5000/api/", 
     prepareHeaders: (headers, { getState }) => {
       const state = getState() as any;
       
-      // 1. Prioritize token from Redux state, fallback to localStorage
-      let token = state.auth?.token || localStorage.getItem("token");
+      // Pull token from state OR localStorage (Fallback for page refreshes)
+      const rawToken = state.auth?.token || localStorage.getItem("token");
 
-      // 2. Validate token is a real string and not "null"/"undefined" from storage
-      if (token && token !== "null" && token !== "undefined") {
-        
-        // 3. THE FIX: Remove all double quotes. 
-        // If stored as "eyJ...", we must send eyJ... or the backend fails.
-        const cleanToken = token.replace(/"/g, "");
-        
+      if (rawToken && rawToken !== "null" && rawToken !== "undefined") {
+        // Remove double quotes and backslashes that might wrap the token
+        const cleanToken = String(rawToken).replace(/[\\"]/g, "").trim();
         headers.set("Authorization", `Bearer ${cleanToken}`);
-        
-        // Optional: log to verify the format is correct during development
-        // console.log("Sending Header:", `Bearer ${cleanToken.substring(0, 10)}...`);
       }
       
       headers.set("Content-Type", "application/json");
@@ -84,10 +85,38 @@ export const userApi = createApi({
   tagTypes: ["User", "Profile"],
   endpoints: (builder) => ({
     
-    // Auth Recovery
+    // --- AUTHENTICATED PASSWORD UPDATE ---
+    // Targets: AuthRouter.put("/update-password")
+    updatePassword: builder.mutation<{ message: string }, PasswordUpdateRequest>({
+      query: (payload) => ({
+        url: "auth/update-password",
+        method: "PUT",
+        body: payload,
+      }),
+    }),
+
+    // --- PROFILE MANAGEMENT ---
+    getMe: builder.query<UserProfile, void>({
+      query: () => ({
+        url: "users/me",
+        method: "GET",
+      }),
+      providesTags: ["Profile"],
+    }),
+
+    updateProfile: builder.mutation<{ message: string; user: UserProfile }, UpdateProfileRequest>({
+      query: (payload) => ({
+        url: "users/update-profile", 
+        method: "PUT",         
+        body: payload,
+      }),
+      invalidatesTags: ["Profile"],
+    }),
+
+    // --- AUTH RECOVERY / UNLOCK ---
     requestUnlock: builder.mutation<{ message: string }, { email: string }>({
       query: (payload) => ({
-        url: "request-unlock",
+        url: "users/request-unlock",
         method: "POST",
         body: payload,
       }),
@@ -95,7 +124,7 @@ export const userApi = createApi({
 
     resendUnlockCode: builder.mutation<{ message: string }, { email: string }>({
       query: (payload) => ({
-        url: "resend-unlock",
+        url: "users/resend-unlock",
         method: "POST",
         body: payload,
       }),
@@ -103,81 +132,17 @@ export const userApi = createApi({
 
     verifyUnlock: builder.mutation<{ message: string }, { email: string; code: string }>({
       query: (payload) => ({
-        url: "verify-unlock",
+        url: "users/verify-unlock",
         method: "POST",
         body: payload,
       }),
       invalidatesTags: ["Profile"],
     }),
 
-    // Get current logged in user (GET /api/users/me)
-    getMe: builder.query<UserProfile, void>({
-      query: () => ({
-        url: "me",
-        method: "GET",
-      }),
-      providesTags: ["Profile"],
-    }),
-
-    // Update profile (PUT /api/users/update-profile)
-    updateProfile: builder.mutation<{ message: string; user: UserProfile }, UpdateProfileRequest>({
-      query: (payload) => ({
-        url: "update-profile",
-        method: "PUT",
-        body: payload,
-      }),
-      invalidatesTags: ["Profile"],
-    }),
-
-    // Admin: Full Update
-    adminUpdateUser: builder.mutation<{ message: string; user: UserProfile }, AdminUpdateUserRequest>({
-      query: ({ userId, ...payload }) => ({
-        url: `admin-update/${userId}`,
-        method: "PUT",
-        body: payload,
-      }),
-      invalidatesTags: (result, error, { userId }) => [
-        { type: "User", id: userId },
-        { type: "User", id: "LIST" },
-        { type: "Profile" },
-      ],
-    }),
-
-    // Admin: Role Management
-    changeUserRole: builder.mutation<{ message: string; user: UserProfile }, RoleUpdateRequest>({
-      query: ({ userId, role }) => ({
-        url: `role/${userId}`,
-        method: "PATCH",
-        body: { role },
-      }),
-      invalidatesTags: (result, error, { userId }) => [
-        { type: "User", id: userId },
-        { type: "User", id: "LIST" },
-        { type: "Profile" },
-      ],
-    }),
-
-    // Delete Account
-    deleteUser: builder.mutation<{ message: string; id: string }, string>({
-      query: (userId) => ({
-        url: `${userId}`,
-        method: "DELETE",
-      }),
-      invalidatesTags: ["User", "Profile"],
-    }),
-
-    // Check Voter Eligibility
-    checkEligibility: builder.query<EligibilityResponse, { userId: string; requiredPoints: number }>({
-      query: ({ userId, requiredPoints }) => ({
-        url: `eligible/${userId}?requiredPoints=${requiredPoints}`,
-        method: "GET",
-      }),
-    }),
-
-    // Admin: List all users
+    // --- ADMIN: USER MANAGEMENT ---
     getAllUsers: builder.query<PaginatedUsers, { limit: number; offset: number }>({
       query: ({ limit, offset }) => ({
-        url: `?limit=${limit}&offset=${offset}`,
+        url: `users/?limit=${limit}&offset=${offset}`,
         method: "GET",
       }),
       providesTags: (result) =>
@@ -189,10 +154,22 @@ export const userApi = createApi({
           : [{ type: "User", id: "LIST" }],
     }),
 
-    // Admin: Status updates
+    adminUpdateUser: builder.mutation<{ message: string; user: UserProfile }, AdminUpdateUserRequest>({
+      query: ({ userId, ...payload }) => ({
+        url: `users/admin-update/${userId}`,
+        method: "PUT",
+        body: payload,
+      }),
+      invalidatesTags: (result, error, { userId }) => [
+        { type: "User", id: userId },
+        { type: "User", id: "LIST" },
+        { type: "Profile" },
+      ],
+    }),
+
     updateUserStatus: builder.mutation<UserProfile, StatusUpdateRequest>({
       query: ({ userId, ...payload }) => ({
-        url: `status/${userId}`,
+        url: `users/status/${userId}`,
         method: "PATCH",
         body: payload,
       }),
@@ -202,10 +179,22 @@ export const userApi = createApi({
       ],
     }),
 
-    // Admin: Participation Points
+    changeUserRole: builder.mutation<{ message: string; user: UserProfile }, RoleUpdateRequest>({
+      query: ({ userId, role }) => ({
+        url: `users/role/${userId}`,
+        method: "PATCH",
+        body: { role },
+      }),
+      invalidatesTags: (result, error, { userId }) => [
+        { type: "User", id: userId },
+        { type: "User", id: "LIST" },
+        { type: "Profile" },
+      ],
+    }),
+
     managePoints: builder.mutation<UserProfile, PointsUpdateRequest>({
       query: ({ userId, points }) => ({
-        url: `points/${userId}`,
+        url: `users/points/${userId}`,
         method: "PATCH",
         body: { points },
       }),
@@ -214,10 +203,27 @@ export const userApi = createApi({
         { type: "Profile" },
       ],
     }),
+
+    deleteUser: builder.mutation<{ message: string; id: string }, string>({
+      query: (userId) => ({
+        url: `users/${userId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["User", "Profile"],
+    }),
+
+    // --- ELIGIBILITY ---
+    checkEligibility: builder.query<EligibilityResponse, { userId: string; requiredPoints: number }>({
+      query: ({ userId, requiredPoints }) => ({
+        url: `users/eligible/${userId}?requiredPoints=${requiredPoints}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
 export const {
+  useUpdatePasswordMutation,
   useRequestUnlockMutation,
   useResendUnlockCodeMutation,
   useVerifyUnlockMutation,

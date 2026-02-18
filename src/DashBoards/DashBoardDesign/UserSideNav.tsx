@@ -6,7 +6,8 @@ import {
   FileText,
   User,
   Activity,
-  Eye
+  Eye,
+  KeyRound
 } from "lucide-react";
 import { useDispatch } from "react-redux";
 import toast from "react-hot-toast";
@@ -47,6 +48,12 @@ const navItems: NavItem[] = [
     name: "Live Results", 
     path: "results", 
     icon: <Activity size={18} />, 
+    color: "text-purple-400" 
+  },
+  { 
+    name: "Password Settings", 
+    path: "password", 
+    icon: <KeyRound size={18} />, 
     color: "text-purple-400" 
   },
 ];
