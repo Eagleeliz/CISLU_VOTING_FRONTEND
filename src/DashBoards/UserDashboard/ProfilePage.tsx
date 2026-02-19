@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useGetMeQuery, useUpdateProfileMutation } from "../../Features/Apis/Users.Api";
 import { toast } from "react-hot-toast";
 import Navbar from "../../components/Navbar";
-import { User, ShieldCheck, Mail, GraduationCap, Award, Loader2, Edit3, Save } from 'lucide-react';
+import { User, ShieldCheck, Mail, GraduationCap, Award, Loader2, Edit3, Save, X } from 'lucide-react';
 
 const ProfilePage = () => {
   const { data: user, isLoading: profileLoading } = useGetMeQuery();
@@ -10,13 +10,17 @@ const ProfilePage = () => {
   
   const [isEditMode, setIsEditMode] = useState(false);
   const [formData, setFormData] = useState({ fullName: "", yearOfStudy: "" });
+  const [originalData, setOriginalData] = useState({ fullName: "", yearOfStudy: "" });
 
   useEffect(() => {
     if (user) {
-      setFormData({ 
+      const initialData = { 
         fullName: user.fullName || "", 
         yearOfStudy: user.yearOfStudy?.toString() || "1" 
-      });
+      };
+
+      setFormData(initialData);
+      setOriginalData(initialData);
     }
   }, [user]);
 
@@ -35,6 +39,12 @@ const ProfilePage = () => {
     }
   };
 
+  const handleDiscard = () => {
+    setFormData(originalData);
+    toast.success("Changes Discarded");
+    setIsEditMode(false);
+  };
+
   if (profileLoading) return (
     <div className="h-screen flex items-center justify-center bg-[#07090d]">
       <Loader2 className="animate-spin text-red-600" size={40} />
@@ -45,7 +55,6 @@ const ProfilePage = () => {
     <div className="min-h-screen bg-[#07090d] text-white overflow-x-hidden">
       <Navbar />
       
-      {/* 1. MAIN CONTAINER SIZE: Increase max-w-5xl to 6xl or 7xl to make the whole page wider */}
       <main className="max-w-6xl mx-auto pt-24 md:pt-32 px-4 sm:px-6 pb-12">
         
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
@@ -56,22 +65,31 @@ const ProfilePage = () => {
             </h1>
           </div>
 
-          <button 
-            onClick={() => isEditMode ? handleSave() : setIsEditMode(true)}
-            disabled={isUpdating}
-            className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-xl md:rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 shadow-lg bg-red-600 hover:bg-red-500"
-          >
-            {isUpdating ? <Loader2 className="animate-spin" size={14} /> : isEditMode ? <Save size={14} /> : <Edit3 size={14} />}
-            {isEditMode ? "Apply Changes" : "Update Profile"}
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+            {isEditMode && (
+              <button
+                onClick={handleDiscard}
+                className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-xl md:rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 shadow-lg bg-slate-800 hover:bg-slate-700"
+              >
+                <X size={14} />
+                Discard Changes
+              </button>
+            )}
+
+            <button 
+              onClick={() => isEditMode ? handleSave() : setIsEditMode(true)}
+              disabled={isUpdating}
+              className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-xl md:rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 shadow-lg bg-red-600 hover:bg-red-500"
+            >
+              {isUpdating ? <Loader2 className="animate-spin" size={14} /> : isEditMode ? <Save size={14} /> : <Edit3 size={14} />}
+              {isEditMode ? "Apply Changes" : "Update Profile"}
+            </button>
+          </div>
         </div>
 
-        {/* 2. GRID GAP: Increase gap-8 to gap-12 to add more space between the two cards */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 md:gap-12">
           
-          {/* LEFT: Stats Card */}
           <div className="lg:col-span-4">
-            {/* 3. CARD SIZE: Increase p-8 (padding) and add min-h-[value] to make this card larger */}
             <div className="bg-gradient-to-b from-[#0b0e14] to-[#07090d] rounded-[2.5rem] p-14 min-h-[250px] border border-slate-800/50 relative overflow-hidden shadow-2xl flex flex-col justify-center transition-transform hover:scale-[1.02] duration-300">
               <Award className="absolute -right-6 -bottom-6 text-white/[0.03]" size={150} />
               <p className="text-red-600 text-[10px] font-black uppercase tracking-widest mb-2 relative z-10">Participation</p>
@@ -80,11 +98,8 @@ const ProfilePage = () => {
             </div>
           </div>
 
-          {/* RIGHT: Editable Info Card */}
           <div className="lg:col-span-8">
-            {/* 4. CARD SIZE: Increase p-10 (padding) and add min-h-[value] to make this card larger */}
             <div className="bg-[#0b0e14] rounded-[2.5rem] p-8 md:p-16 min-h-[400px] border border-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col justify-center">
-              {/* 5. VERTICAL SPACING: Increase gap-y-10 to gap-y-16 to make items spread out more */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-y-12 gap-x-12">
                 
                 <div className="space-y-2 group">
