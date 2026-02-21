@@ -20,7 +20,7 @@ export interface CreatePositionRequest {
 
 const baseQuery = fetchBaseQuery({
   // Fixed the protocol typo (http:// instead of http//:)
-  baseUrl: "http://localhost:5000/api/positions", 
+  baseUrl: "https://cislu-voting-app-backend.onrender.com/api/positions", 
   prepareHeaders: (headers) => {
     // Standardizing on 'token' as per your localStorage logic
     const token = localStorage.getItem("token");

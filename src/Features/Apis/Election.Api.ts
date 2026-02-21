@@ -19,7 +19,7 @@ interface ElectionsResponse {
 }
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "http://localhost:5000/api/",
+  baseUrl: "https://cislu-voting-app-backend.onrender.com/api/",
   prepareHeaders: (headers) => {
     const token = localStorage.getItem("token");
     if (token) {

@@ -43,7 +43,7 @@ export interface ResultEntry {
 export const votesApi = createApi({
   reducerPath: "votesApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/votes",
+    baseUrl: "https://cislu-voting-app-backend.onrender.com/api/votes",
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as any).auth?.token;
       if (token) {

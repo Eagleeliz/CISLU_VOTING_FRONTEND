@@ -65,7 +65,7 @@ export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: fetchBaseQuery({
     // Base URL points to /api/ to allow access to both auth and users routers
-    baseUrl: "http://localhost:5000/api/", 
+    baseUrl: "https://cislu-voting-app-backend.onrender.com/api/", 
     prepareHeaders: (headers, { getState }) => {
       const state = getState() as any;
       

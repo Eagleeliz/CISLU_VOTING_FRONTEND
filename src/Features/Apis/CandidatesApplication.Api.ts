@@ -49,7 +49,7 @@ export interface CandidateApplication {
 export const candidateApplicationApi = createApi({
   reducerPath: "candidateApplicationApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/candidate-applications",
+    baseUrl: "https://cislu-voting-app-backend.onrender.com/api/candidate-applications",
     prepareHeaders: (headers) => {
       const token = localStorage.getItem("token");
       if (token) {
