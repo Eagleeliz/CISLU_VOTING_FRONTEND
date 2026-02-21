@@ -108,6 +108,7 @@ const LandingPage = () => {
       </section>
 
       {/* --- LIVE COUNTDOWN DASHBOARD --- */}
+     {/* --- LIVE COUNTDOWN DASHBOARD --- */}
       <section className="px-6 -mt-20 relative z-20">
         <div className="max-w-6xl mx-auto">
           <div className="bg-[#0D162D] border border-white/10 rounded-[3rem] p-10 md:p-16 shadow-2xl backdrop-blur-2xl">
@@ -115,20 +116,28 @@ const LandingPage = () => {
               <div className="space-y-8">
                 <div>
                   <div className="flex items-center gap-3 mb-4">
-                     <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
-                     <span className="text-red-500 font-black text-[10px] uppercase tracking-[0.5em]">Upcoming Cycle</span>
+                     <span className={`h-2 w-2 rounded-full ${latestElection?.status === 'voting' ? 'bg-green-500' : 'bg-red-500'} animate-pulse`}></span>
+                     <span className={`${latestElection?.status === 'voting' ? 'text-green-500' : 'text-red-500'} font-black text-[10px] uppercase tracking-[0.5em]`}>
+                        {latestElection?.status === 'voting' ? "Live Session" : "Upcoming Cycle"}
+                     </span>
                   </div>
                   <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-tighter leading-none mb-6">
-                    {latestElection?.title || "ELECTION CYCLE 2026"}
+                    {latestElection?.title || "NO NEARBY ELECTIONS"}
                   </h2>
                   <p className="text-slate-400 text-sm font-medium leading-relaxed tracking-wide">
-                    The registration window is closing soon. Ensure your biometric profile is updated in the student portal before the countdown hits zero.
+                    {latestElection?.status === 'voting' 
+                      ? "The polls are currently open. Cast your vote before the window closes. Ensure your connection is stable before finalizing your choice."
+                      : latestElection 
+                        ? "The registration window is closing soon. Ensure your biometric profile is updated in the student portal before the countdown hits zero."
+                        : "There are currently no active or scheduled election cycles. Please check back later for updates from the CISLU Electoral Commission."}
                   </p>
                 </div>
                 <div className="flex gap-4">
                   <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/5">
-                    <Timer size={14} className="text-red-500" />
-                    <span className="text-[10px] text-white font-black uppercase tracking-widest">Status: PENDING</span>
+                    <Timer size={14} className={latestElection?.status === 'voting' ? "text-green-500" : "text-red-500"} />
+                    <span className="text-[10px] text-white font-black uppercase tracking-widest">
+                        Status: {latestElection?.status ? latestElection.status.toUpperCase() : "IDLE"}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-xl border border-white/5">
                     <CheckCircle2 size={14} className="text-green-500" />
@@ -136,6 +145,8 @@ const LandingPage = () => {
                   </div>
                 </div>
               </div>
+
+              {/* Countdown Logic */}
               <div className="grid grid-cols-4 gap-4 md:gap-6">
                 {[
                   { label: "DAYS", val: timeLeft.days },
@@ -146,7 +157,7 @@ const LandingPage = () => {
                   <div key={i} className="flex flex-col items-center">
                     <div className="w-full aspect-square bg-gradient-to-b from-white/10 to-transparent border border-white/10 rounded-2xl flex items-center justify-center mb-3">
                       <span className="text-3xl md:text-5xl font-black text-white tracking-tighter">
-                        {String(unit.val).padStart(2, '0')}
+                        {latestElection ? String(unit.val).padStart(2, '0') : "00"}
                       </span>
                     </div>
                     <span className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em]">{unit.label}</span>
