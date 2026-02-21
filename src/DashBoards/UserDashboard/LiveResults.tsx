@@ -40,6 +40,9 @@ const LiveResults = () => {
               <Hourglass
                 className="
                   w-7 h-7
+         
+         
+         
                   sm:w-9 sm:h-9
                   text-indigo-500
                   animate-pulse

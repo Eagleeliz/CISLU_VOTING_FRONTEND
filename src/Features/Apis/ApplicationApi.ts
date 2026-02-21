@@ -127,13 +127,13 @@ export const applicationApi = createApi({
     // 3. GET SINGLE APPLICATION BY ID (Patron/Student View)
     getApplicationById: builder.query<ApplicationWithDetails, string>({
       query: (id) => `candidate-applications/${id}`,
-      providesTags: (result, error, id) => [{ type: "Application", id }],
+      providesTags: (result, error, id) => [{ type: "Application", id,result, error,  }],
     }),
 
     // 4. GET APPLICATIONS BY ELECTION (Patron View)
     getApplicationsByElection: builder.query<ApplicationWithDetails[], string>({
       query: (electionId) => `candidate-applications/election/${electionId}`,
-      providesTags: (result, error, electionId) => [{ type: "ElectionApplications", id: electionId }],
+      providesTags: (result, error, electionId) => [{ type: "ElectionApplications", id: electionId,result, error, }],
     }),
 
     // 5. CREATE APPLICATION
@@ -153,7 +153,7 @@ export const applicationApi = createApi({
         method: "PATCH",
         body: updates,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: ({ id }) => [
         { type: "Application", id },
         "MyApplications",
         "ElectionApplications"
@@ -167,7 +167,7 @@ export const applicationApi = createApi({
         method: "PATCH",
         body,
       }),
-      invalidatesTags: (result, error, { id }) => [
+      invalidatesTags: ( { id }) => [
         { type: "Application", id },
         "ElectionApplications",
         "MyApplications"

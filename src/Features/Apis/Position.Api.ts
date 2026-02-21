@@ -84,7 +84,7 @@ getPositionsByElection: builder.query<Position[], string>({
         method: "PUT",
         body,
       }),
-      invalidatesTags: (result, error, { positionId }) => [
+      invalidatesTags: (_result, _error, { positionId }) => [
         { type: 'Positions', id: positionId },
         { type: 'Positions', id: 'LIST' }
       ],
@@ -103,7 +103,7 @@ getPositionsByElection: builder.query<Position[], string>({
     // 6. GET SINGLE POSITION BY ID
     getPositionById: builder.query<Position, string>({
       query: (id) => `/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Positions', id }],
+      providesTags: (_result, _error, id) => [{ type: 'Positions', id }],
     }),
   }),
 });

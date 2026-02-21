@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import {
   useGetAllElectionsQuery,
@@ -8,9 +8,9 @@ import {
   useChangeElectionStatusMutation,
 } from "../../Features/Apis/Election.Api";
 import { 
-  Plus, Edit3, Trash2, Search, X, Loader2, 
-  Zap, CheckCircle2, Terminal, RefreshCw, 
-  ChevronLeft, ChevronRight, Clock, AlertCircle,
+  Plus, Trash2, Search, X, Loader2, 
+   CheckCircle2, RefreshCw, 
+  Clock, AlertCircle,
   Calendar, Shield
 } from 'lucide-react';
 import toast from 'react-hot-toast'; // Using toast for better UI feedback
@@ -20,18 +20,18 @@ import type { RootState } from "../../app/store";
 export const AllElections = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   
-  const { data: response, isLoading, error, refetch, isFetching } = useGetAllElectionsQuery();
+  const { data: response, isLoading, refetch, isFetching } = useGetAllElectionsQuery();
   const [createElection, { isLoading: isCreating }] = useCreateElectionMutation();
   const [updateElection, { isLoading: isUpdating }] = useUpdateElectionMutation();
   const [deleteElection] = useDeleteElectionMutation();
-  const [changeStatus] = useChangeElectionStatusMutation();
+  const [] = useChangeElectionStatusMutation();
 
   // UI STATE
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage] = useState(1);
   const itemsPerPage = 6;
 
   // FORM STATE
@@ -98,17 +98,9 @@ export const AllElections = () => {
     }
   };
 
-  const handleQuickStatusChange = async (id: string, newStatus: string) => {
-    try {
-      await changeStatus({ electionId: id, status: newStatus }).unwrap();
-      toast.success(`Phase shifted to ${newStatus}`);
-    } catch {
-      toast.error("Status update failed");
-    }
-  };
 
   /* ================= LOGIC ================= */
-  const { paginatedElections, totalPages } = useMemo(() => {
+  const { paginatedElections } = useMemo(() => {
     const rawList = Array.isArray(response?.elections) ? response.elections : [];
     const filtered = rawList.filter((el: any) => {
       const matchesName = el.title?.toLowerCase().includes(searchTerm.toLowerCase());

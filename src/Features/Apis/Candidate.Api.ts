@@ -110,7 +110,7 @@ export const candidateApi = createApi({
      */
     getCandidateById: builder.query<SingleCandidateResponse, string>({
       query: (id) => `candidates/${id}`,
-      providesTags: (result, error, id) => [{ type: "Candidates", id }],
+      providesTags: (result, error, id) => [{ type: "Candidates", id,result, error, }],
     }),
   }),
 });

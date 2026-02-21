@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { 
-  UserPlus, 
+
   Mail, 
   ShieldCheck, 
   UserCircle, 
@@ -8,7 +8,7 @@ import {
   CheckCircle2, 
   ShieldAlert, 
   Fingerprint,
-  ArrowRight,
+
   Terminal,
   Zap
 } from "lucide-react";

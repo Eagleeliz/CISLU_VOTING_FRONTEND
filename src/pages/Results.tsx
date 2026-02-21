@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { 
   Trophy, 
   BarChart3, 
@@ -8,7 +8,6 @@ import {
   Activity,
   RefreshCcw,
   Hash,
-  User,
   CheckCircle2,
   Lock
 } from "lucide-react";

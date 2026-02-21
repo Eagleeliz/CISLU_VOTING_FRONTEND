@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import  { useMemo } from 'react';
 import { 
   PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, 
   CartesianGrid, LineChart, Line, ResponsiveContainer, AreaChart, Area, Legend
@@ -6,7 +6,7 @@ import {
 import { 
   Users, Vote, ShieldCheck, FileStack, TrendingUp, 
   Award, GraduationCap, Gavel, Activity, Search, Zap, ShieldAlert, Layers, MapPin,
-  UserCheck, UserX, Shield, Clock
+  UserCheck, Shield, Clock
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useSelector } from 'react-redux';

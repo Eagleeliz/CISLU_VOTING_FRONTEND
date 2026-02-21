@@ -1,12 +1,8 @@
-import React from "react";
 import { 
-  ShieldCheck, 
   Users, 
-  ChevronRight,
   CheckCircle2,
   LayoutGrid,
   Touchpad,
-  Clock,
   BarChart3,
   ArrowRight
 } from "lucide-react";

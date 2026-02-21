@@ -1,5 +1,5 @@
 // DashBoards/UserDashboard/CandidatesPage.tsx
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { 
@@ -10,7 +10,7 @@ import { useGetAllElectionsQuery } from "../Features/Apis/Election.Api";
 import { useGetPositionsByElectionQuery } from "../Features/Apis/Position.Api";
 import { 
   Fingerprint, Search, AlertCircle, 
-  Calendar, ChevronRight, Award,
+  Calendar, ChevronRight, 
   CheckCircle2, Loader2, Quote
 } from "lucide-react";
 

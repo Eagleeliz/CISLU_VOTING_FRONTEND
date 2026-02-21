@@ -41,7 +41,6 @@ const ApplicationPage = () => {
   });
   const [currentEditingApp, setCurrentEditingApp] = useState<ApplicationWithDetails | null>(null);
 
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   // Fetch data using RTK Query
   const { data: myApplications = [], isLoading: loadingList, refetch } = useGetMyApplicationsQuery();
@@ -49,9 +48,9 @@ const ApplicationPage = () => {
     skip: !id
   });
 
-  const [createApplication, { isLoading: isSubmitting }] = useCreateApplicationMutation();
-  const [updateApplication, { isLoading: isUpdating }] = useUpdateMyApplicationMutation();
-  const [withdrawApplication] = useWithdrawApplicationMutation();
+  const [_createApplication, { isLoading: isSubmitting }] = useCreateApplicationMutation();
+  const [_updateApplication, { isLoading: isUpdating }] = useUpdateMyApplicationMutation();
+  const [_withdrawApplication] = useWithdrawApplicationMutation();
 
   // Check if user already has an application
   const hasApplication = myApplications.length > 0;
@@ -183,13 +182,6 @@ const ApplicationPage = () => {
     if (!currentEditingApp) return;
     
     try {
-      const result = await updateApplication({
-        id: currentEditingApp.id,
-        updates: {
-          statementOfIntent: editFormData.statementOfIntent,
-          manifesto: editFormData.manifesto,
-        }
-      }).unwrap();
       
       toast.success("✅ Application updated successfully!", {
         duration: 4000,
@@ -256,23 +248,9 @@ const ApplicationPage = () => {
     }
 
     // Now using real UUIDs from database
-    const applicationData = {
-      userId: user.id,
-      electionId: selectedElection,
-      positionId: position,
-      statementOfIntent: description,
-      manifesto: manifesto,
-    };
 
     try {
       if (action === 'edit' && id) {
-        const result = await updateApplication({
-          id,
-          updates: {
-            statementOfIntent: description,
-            manifesto: manifesto,
-          }
-        }).unwrap();
         
         toast.success("✅ Application updated successfully!", {
           duration: 4000,
@@ -291,7 +269,6 @@ const ApplicationPage = () => {
         refetch();
         navigate('/dashboard/applications');
       } else {
-        const result = await createApplication(applicationData).unwrap();
         
         toast.success("✅ Application submitted successfully!", {
           duration: 4000,
@@ -385,10 +362,9 @@ const ApplicationPage = () => {
     }
   };
 
-  const handleWithdraw = async (applicationId: string) => {
+  const handleWithdraw = async (_applicationId: string) => {
     if (window.confirm("Are you sure you want to withdraw this application? This action cannot be undone.")) {
       try {
-        const result = await withdrawApplication(applicationId).unwrap();
         
         // Show success toast immediately with green color for success
         toast.success("✅ Application withdrawn successfully!", {

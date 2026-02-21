@@ -160,7 +160,7 @@ export const userApi = createApi({
         method: "PUT",
         body: payload,
       }),
-      invalidatesTags: (result, error, { userId }) => [
+      invalidatesTags: (_result, _error, { userId }) => [
         { type: "User", id: userId },
         { type: "User", id: "LIST" },
         { type: "Profile" },
@@ -173,7 +173,7 @@ export const userApi = createApi({
         method: "PATCH",
         body: payload,
       }),
-      invalidatesTags: (result, error, { userId }) => [
+      invalidatesTags: (_result, _error, { userId }) => [
         { type: "User", id: userId },
         { type: "Profile" }, 
       ],
@@ -185,7 +185,7 @@ export const userApi = createApi({
         method: "PATCH",
         body: { role },
       }),
-      invalidatesTags: (result, error, { userId }) => [
+      invalidatesTags: (_result, _error, { userId }) => [
         { type: "User", id: userId },
         { type: "User", id: "LIST" },
         { type: "Profile" },
@@ -198,7 +198,7 @@ export const userApi = createApi({
         method: "PATCH",
         body: { points },
       }),
-      invalidatesTags: (result, error, { userId }) => [
+      invalidatesTags: (_result, _error, { userId }) => [
         { type: "User", id: userId },
         { type: "Profile" },
       ],

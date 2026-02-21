@@ -1,9 +1,9 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { 
-  Mail, GraduationCap, ShieldCheck, 
-  Calendar, Award, Info, ChevronLeft,
-  Fingerprint, CheckCircle, Quote, User,
+  Mail, GraduationCap, 
+  Calendar, Award,  ChevronLeft,
+  Fingerprint, CheckCircle, Quote,
   BookOpen, Hash, Verified, AlertCircle
 } from "lucide-react";
 import { useGetApplicationDetailsQuery } from "../Features/Apis/CandidatesApplication.Api";

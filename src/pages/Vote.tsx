@@ -1,5 +1,5 @@
 // DashBoards/UserDashboard/VotingPage.tsx
-import React, { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   CheckCircle2, 
@@ -7,9 +7,6 @@ import {
   Fingerprint, 
   Loader2,
   LayoutGrid,
-  ChevronDown,
-  User,
-  CalendarDays,
   X,
   FileText,
   ShieldAlert,

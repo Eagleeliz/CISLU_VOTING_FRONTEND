@@ -98,7 +98,7 @@ export const votesApi = createApi({
     // 5. VIEW LIVE POSITION RESULTS
     getPositionResults: builder.query<ResultEntry[], string>({
       query: (positionId) => `/results/position/${positionId}`,
-      providesTags: (result, error, id) => [{ type: "Results", id }],
+      providesTags: (_result, _error, id) => [{ type: "Results", id }],
     }),
 
     // 6. GET FULL ELECTION ANALYTICS

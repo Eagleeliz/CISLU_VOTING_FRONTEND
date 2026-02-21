@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useGetMeQuery, useUpdateProfileMutation } from "../../Features/Apis/Users.Api";
 import { toast } from "react-hot-toast";
 import Navbar from "../../components/Navbar";

@@ -79,7 +79,7 @@ export const candidateApplicationApi = createApi({
         method: "PATCH",
         body,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Applications", id }, "Applications"],
+      invalidatesTags: (_result, _error, { id }) => [{ type: "Applications", id }, "Applications"],
     }),
 
     // 3. LIST ALL CANDIDATES FOR ELECTION (GET /election/:electionId)
@@ -95,7 +95,7 @@ export const candidateApplicationApi = createApi({
     getApplicationDetails: builder.query<CandidateApplication, string>({
       query: (id) => `/${id}`,
       transformResponse: (response: any) => response.application || response,
-      providesTags: (result, error, id) => [{ type: "Applications", id }],
+      providesTags: (_result, _error, id) => [{ type: "Applications", id }],
     }),
 
     // 5. APPROVE/REJECT CANDIDATE (PATCH /:id/review) - Admin/Patron
@@ -105,7 +105,7 @@ export const candidateApplicationApi = createApi({
         method: "PATCH",
         body,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: "Applications", id }, "Applications"],
+      invalidatesTags: (_result, _error, { id }) => [{ type: "Applications", id }, "Applications"],
     }),
 
     // 6. WITHDRAW CANDIDACY (DELETE /:id/withdraw) - Student

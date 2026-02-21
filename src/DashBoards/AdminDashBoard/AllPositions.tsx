@@ -8,10 +8,10 @@ import {
 } from "../../Features/Apis/Position.Api";
 import { useGetAllElectionsQuery } from "../../Features/Apis/Election.Api";
 import { 
-  Plus, Edit3, Trash2, Search, X, Loader2, 
-  Target, Shield, Settings2, RefreshCw, 
+  Plus, Trash2, Search, X, Loader2, 
+ Shield,  RefreshCw, 
   AlertTriangle, Users, Trophy, Ghost,
-  Terminal, Hash, CheckCircle2
+ CheckCircle2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { RootState } from "../../app/store";

@@ -1,16 +1,15 @@
-import React from "react";
+
 import { useNavigate } from "react-router-dom";
 import { 
   ShieldCheck, 
   Mail, 
   Globe,
   Circle,
-  ChevronRight,
   ArrowUp,
   Heart,
   Code2,
   ExternalLink,
-  Layers
+ 
 } from "lucide-react";
 
 const Footer = () => {

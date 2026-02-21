@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import  { useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import {
   useGetCandidatesByElectionQuery,
@@ -6,17 +6,16 @@ import {
 } from "../../Features/Apis/Candidate.Api"; 
 import { useGetAllElectionsQuery } from "../../Features/Apis/Election.Api";
 import { 
-  Search, X, Loader2, 
+  Search, Loader2, 
   ShieldAlert, RefreshCw, Shield,
-  Zap, Flame, Terminal, MapPin, 
-  Hash, ClipboardCheck, Info,
-  Users, UserCheck
+ Flame, Terminal, MapPin, 
+  Hash, UserCheck
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import type { RootState } from "../../app/store";
 
 export const AllCandidates = () => {
-  const { user } = useSelector((state: RootState) => state.auth);
+  useSelector((state: RootState) => state.auth);
   
   // UI State
   const [selectedElectionId, setSelectedElectionId] = useState<string>("");

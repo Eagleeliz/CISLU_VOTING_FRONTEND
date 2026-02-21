@@ -4,12 +4,12 @@ import {
   LogOut,
   Terminal,
   Settings2,
-  Activity,
+
   Vote,
-  Database,
+
   Users,
   UserCircle,
-  ShieldCheck,
+ 
   GitGraph
 } from "lucide-react";
 import { useDispatch } from "react-redux";
