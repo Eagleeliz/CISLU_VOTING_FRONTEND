@@ -41,7 +41,7 @@ export interface AuthResponse {
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://cislu-voting-app-backend.onrender.com/api/auth/",
+    baseUrl: "http://localhost:5000/api/auth/",
     prepareHeaders: (headers, { getState }) => {
       let token = (getState() as any).auth.token || localStorage.getItem("token");
       if (token) {
