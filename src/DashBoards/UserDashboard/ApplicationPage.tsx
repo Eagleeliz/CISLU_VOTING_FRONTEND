@@ -59,9 +59,14 @@ const ApplicationPage = () => {
 
   useEffect(() => {
     const fetchPositions = async () => {
-      if (!selectedElection) return;
+      // Clear positions if no election is selected
+      if (!selectedElection) {
+        setPositions([]);
+        return;
+      }
       try {
-        const response = await fetch(`http://localhost:5000/api/positions/election/${selectedElection}`, {
+        // UPDATED: Pointing to the live Render backend instead of localhost
+        const response = await fetch(`https://cislu-voting-app-backend.onrender.com/api/positions/election/${selectedElection}`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
         const data = await response.json();
